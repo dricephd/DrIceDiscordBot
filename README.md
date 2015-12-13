@@ -26,6 +26,5 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 1. Extract desired branch to a folder
 2. Run `npm install` while within the folder
 3. Fill out auth.json with desired account credentials
-4. ``node client.js``
-
+4. `node client.js`
 - If you'd like to enable the status reporting enter the channel ID number into config.json (STRIP OUT '<','#', and '>' from what you get in the ``!ID`` command!)
