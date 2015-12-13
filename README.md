@@ -8,6 +8,7 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 
 ##Planned Features##
 - Working on it...
+- Pivotal Tracker is my friend but not up yet.
 
 ##Installation##
 - discord.js required
