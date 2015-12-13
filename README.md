@@ -1,10 +1,11 @@
 #DrIceDiscordBot#
 Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's primary backbone.
 
-##Current Features in 0.1.0##
+##Current Features in 0.2.0##
 - Status logging to channel ID supplied in config.json
 - !help command lists all current commands
 - !configtest command for testing your config
+- !fish joke command hits user with one of 1,068 species of fish
 
 ##Planned Features for 1.0##
 - Bot first setup assistance and error checking (Not everyone is technical)
@@ -12,7 +13,6 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 - User Agreement first time they join the server
   - Options in config.json
   - Registration channel where "I agree" must be typed to enter
-- !fish joke command
 - !roulette to pick a user at random
 
 ##Installation##
