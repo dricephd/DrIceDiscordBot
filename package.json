@@ -5,7 +5,8 @@
   "main": "client.js",
   "dependencies": {
     "discord.js": "^5.1.0",
-    "node.js": "0.0.0"
+    "node.js": "0.0.0",
+    "split": "^1.0.0"
   },
   "author": "DrIcePhD",
   "license": "GPL-2.0"

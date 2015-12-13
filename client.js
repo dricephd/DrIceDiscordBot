@@ -10,10 +10,12 @@ const VERSION = "0.2.0";
 var Discord = require("discord.js");
 
 // Load JSON Files
-var AuthDetails = require("./auth.json");
-var ConfigDetails = require("./config.json");
+var AuthDetails = require("./config_files/auth.json");
+var ConfigDetails = require("./config_files/config.json");
 
+//Spawn globally required classes
 var bot = new Discord.Client();
+var fs = require('fs'); //Used for File Input Output
 
 //when the bot is ready
 bot.on("ready", function () {
@@ -41,7 +43,7 @@ bot.on("message", function (msg) {
 		//DM The commands to the caller
 		bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
 		bot.sendMessage(msg.sender, "!help - You're already doing it!");
-		bot.sendMessage(msg.sender, "!fish - Slaps requester about with a trout!");
+		bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
 		bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
 		bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 		
@@ -49,7 +51,8 @@ bot.on("message", function (msg) {
 	
 	//Stupid joke command
 	if (msg.content === "!fish") {
-		bot.sendMessage(msg.channel, "***Slaps " + msg.author + " about with a smelly trout.***");
+		var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
+		bot.sendMessage(msg.channel, "***Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "***");
 	}
 	
 	/* Commands that are mainly for debugging purposes:
