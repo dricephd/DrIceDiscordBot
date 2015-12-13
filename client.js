@@ -1,10 +1,10 @@
 /*
 	This is DrIceBot, mostly a ping-pong bot that responds to commands.
 	Currently it is best configured when only running on one server due to the way config.json is utilized.
-	VERSION: 0.1.0
+	VERSION: 0.2.0
 */
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 //Load Dependencies
 var Discord = require("discord.js");
@@ -34,14 +34,22 @@ bot.on("disconnected", function () {
 bot.on("message", function (msg) {
 	/* Commands for primary use
 		* !help
+		* !fish
 	*/
+	//Sends PM to user of all relevant commands
 	if (msg.content === "!help") {
 		//DM The commands to the caller
 		bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
 		bot.sendMessage(msg.sender, "!help - You're already doing it!");
+		bot.sendMessage(msg.sender, "!fish - Slaps requester about with a trout!");
 		bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
 		bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 		
+	}
+	
+	//Stupid joke command
+	if (msg.content === "!fish") {
+		bot.sendMessage(msg.channel, "***Slaps " + msg.author + " about with a smelly trout.***");
 	}
 	
 	/* Commands that are mainly for debugging purposes:
