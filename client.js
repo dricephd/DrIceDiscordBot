@@ -4,19 +4,20 @@
 	VERSION: 0.1.0
 */
 
+const VERSION = "0.1.0";
+
 //Load Dependencies
 var Discord = require("discord.js");
 
-// Get the email and password
+// Load JSON Files
 var AuthDetails = require("./auth.json");
-
-// Get config.json
 var ConfigDetails = require("./config.json");
 
 var bot = new Discord.Client();
 
 //when the bot is ready
 bot.on("ready", function () {
+	console.log("Running Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
 });
 
@@ -31,6 +32,18 @@ bot.on("disconnected", function () {
 
 //when the bot receives a message
 bot.on("message", function (msg) {
+	/* Commands for primary use
+		* !help
+	*/
+	if (msg.content === "!help") {
+		//DM The commands to the caller
+		bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
+		bot.sendMessage(msg.sender, "!help - You're already doing it!");
+		bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
+		bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
+		
+	}
+	
 	/* Commands that are mainly for debugging purposes:
 		* Ping
 		* !ID
@@ -38,16 +51,7 @@ bot.on("message", function (msg) {
 		Manage Roles and Manage Channels permissions required to run:
 		* !ConfigTest
 	*/
-	
-	//if message begins with "ping"
-	if (msg.content.indexOf("ping") === 0) {
-		//send a message to the channel the ping message was sent in.
-		bot.sendMessage(msg.channel, "pong!");
-
-		//alert the console
-		console.log("pong-ed " + msg.author.username);
-	}
-	
+		
 	//if message is "!ID"
 	if (msg.content === "!ID") {
 		//Respond and log Channel ID, User ID
