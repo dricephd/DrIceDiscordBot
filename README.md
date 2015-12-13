@@ -14,7 +14,6 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
   - Registration channel where "I agree" must be typed to enter
 - !fish joke command
 - !roulette to pick a user at random
-- !
 
 ##Installation##
 ### Pre-Requesites
