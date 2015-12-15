@@ -45,7 +45,7 @@ bot.on("message", function (msg) {
 		bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
 		bot.sendMessage(msg.sender, "!help - You're already doing it!");
 		bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
-		bot.sendmessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
+		bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
 		bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
 		bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 		
