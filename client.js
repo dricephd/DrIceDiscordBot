@@ -10,7 +10,14 @@ const VERSION = "0.2.0";
 var Discord = require("discord.js");
 
 // Load JSON Files
-var AuthDetails = require("./config_files/auth.json");
+try {
+	var AuthDetails = require("./config_files/auth.json");
+} 
+catch (error) {
+	console.log("Unable to load auth.json!");
+	throw error;
+}
+
 var ConfigDetails = require("./config_files/config.json");
 
 //Spawn globally required classes
@@ -53,8 +60,15 @@ bot.on("message", function (msg) {
 	
 	//Stupid joke command
 	if (msg.content === "!fish") {
-		var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
-		bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
+		//error handling for the fish file
+		try {
+			var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
+			bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
+		}
+		catch (error) {
+			console.log(error);
+			bot.sendMessage(msg.channel, "There was an error with this command.");
+		}
 	}
 	
 	//Randomly choose a user
@@ -149,5 +163,5 @@ console.log = function(data)
 
 //Finally, let the bot login.
 bot.login(AuthDetails.email, AuthDetails.password, function(error, sentMsg) {
-	console.log("Login Errors: " + error);
+	if (error != null) console.log("Login Errors: " + error);
 });
