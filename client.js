@@ -10,12 +10,26 @@ const VERSION = "0.2.0";
 var Discord = require("discord.js");
 
 // Load JSON Files
-var AuthDetails = require("./config_files/auth.json");
-var ConfigDetails = require("./config_files/config.json");
+try {
+	var AuthDetails = require("./config_files/auth.json");
+	var ConfigDetails = require("./config_files/config.json");
+} 
+catch (error) {
+	console.log("Unable to load a json file!");
+	throw error;
+}
 
 //Spawn globally required classes
 var bot = new Discord.Client();
 var fs = require('fs'); //Used for File Input Output
+
+//Setup console log function
+console.logCopy = console.log.bind(console);
+console.log = function(data)
+{
+	var timestamp = '[' + Date.now() + '] ';
+    this.logCopy(timestamp, data);
+};
 
 //when the bot is ready
 bot.on("ready", function () {
@@ -53,8 +67,15 @@ bot.on("message", function (msg) {
 	
 	//Stupid joke command
 	if (msg.content === "!fish") {
-		var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
-		bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
+		//error handling for the fish file
+		try {
+			var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
+			bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
+		}
+		catch (error) {
+			console.log(error);
+			bot.sendMessage(msg.channel, "There was an error with this command.");
+		}
 	}
 	
 	//Randomly choose a user
@@ -74,10 +95,7 @@ bot.on("message", function (msg) {
 	}
 	
 	/* Commands that are mainly for debugging purposes:
-		* Ping
 		* !ID
-		
-		Manage Roles and Manage Channels permissions required to run:
 		* !ConfigTest
 	*/
 		
@@ -139,15 +157,12 @@ bot.on("presence", function (usr, status, gID) {
 	}
 });
 
-//Overload Function
-console.logCopy = console.log.bind(console);
-console.log = function(data)
-{
-	var timestamp = '[' + Date.now() + '] ';
-    this.logCopy(timestamp, data);
-};
-
 //Finally, let the bot login.
 bot.login(AuthDetails.email, AuthDetails.password, function(error, sentMsg) {
+<<<<<<< HEAD
 	console.log("Login Errors: " + error);
 });
+=======
+	if (error != null) console.log("Login Errors: " + error);
+});
+>>>>>>> JSonErrorHandling
