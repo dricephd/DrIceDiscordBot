@@ -37,6 +37,7 @@ bot.on("message", function (msg) {
 	/* Commands for primary use
 		* !help
 		* !fish
+		* !roulette
 	*/
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help") {
@@ -44,6 +45,7 @@ bot.on("message", function (msg) {
 		bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
 		bot.sendMessage(msg.sender, "!help - You're already doing it!");
 		bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
+		bot.sendmessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
 		bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
 		bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 		
@@ -52,7 +54,23 @@ bot.on("message", function (msg) {
 	//Stupid joke command
 	if (msg.content === "!fish") {
 		var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
-		bot.sendMessage(msg.channel, "***Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "***");
+		bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
+	}
+	
+	//Randomly choose a user
+	if (msg.content === "!roulette") {
+		
+		//Select someone at random that isn't the bot
+		var activeUsers = bot.users;
+		var rouletteWinner = bot.user; //Set it to itself for next bit of logic
+		
+		//Make sure we don't chose someone who's offline, idle, or the bot
+		while (rouletteWinner === bot.user || rouletteWinner.status == "offline" || rouletteWinner.status == "idle") {
+			rouletteWinner = activeUsers[Math.floor(Math.random()*activeUsers.length)]; //Keep picking until bot doesn't win
+		}
+		
+		bot.sendMessage(msg.channel, rouletteWinner + " has been selected at random by the powers that be.")
+		console.log("Roulette Winner: " + rouletteWinner.username + " " + rouletteWinner.id);
 	}
 	
 	/* Commands that are mainly for debugging purposes:
