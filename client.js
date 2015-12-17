@@ -159,10 +159,5 @@ bot.on("presence", function (usr, status, gID) {
 
 //Finally, let the bot login.
 bot.login(AuthDetails.email, AuthDetails.password, function(error, sentMsg) {
-<<<<<<< HEAD
-	console.log("Login Errors: " + error);
-});
-=======
 	if (error != null) console.log("Login Errors: " + error);
 });
->>>>>>> JSonErrorHandling
