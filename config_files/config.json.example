@@ -3,7 +3,7 @@
 	"featureStatus": {
 		"fish" : "1",
 		"roulette" : "1",
-		"statusNotifier" : "1",
+		"statusNotifier" : "0",
 		"help" : "1",
 		"ID" : "1",
 		"configTest" : "1"
