@@ -24,6 +24,7 @@ console.log = function(data) {
     this.logCopy(timestamp, data);
 };
 
+
 //Send enabled help commands to requester
 commandHelp = function(msg) {	
 	//DM The commands to the caller
@@ -36,6 +37,71 @@ commandHelp = function(msg) {
 	if (ConfigDetails.featureStatus.ID === "1") bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
 	if (ConfigDetails.featureStatus.configTest === "1") bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 };
+
+//Hits the user with a fish loaded randomly from our file
+commandFish = function(msg) {
+	//error handling for the fish file
+	try {
+		var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
+		bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
+	}
+	catch (error) {
+		console.log(error);
+		bot.sendMessage(msg.channel, "There was an error with this command's data file.");
+	}
+	
+}
+
+//Chooses a user at random
+commandRoulette = function(msg) {
+	//Select someone at random that isn't the bot
+	var activeUsers = bot.users;
+	var rouletteWinner = bot.user; //Set it to itself for next bit of logic
+	
+	//Make sure we don't chose someone who's offline, idle, or the bot
+	while (rouletteWinner === bot.user || rouletteWinner.status == "offline" || rouletteWinner.status == "idle") {
+		rouletteWinner = activeUsers[Math.floor(Math.random()*activeUsers.length)]; //Keep picking until bot doesn't win
+	}
+	
+	bot.sendMessage(msg.channel, rouletteWinner + " has been selected at random by the powers that be.")
+	console.log("Roulette Winner: " + rouletteWinner.username + " " + rouletteWinner.id);
+}
+
+//ID Values returned
+commandID = function(msg) {
+	//Respond and log Channel ID, User ID
+	bot.sendMessage(msg.sender, "Channel ID: " + msg.channel);
+	bot.sendMessage(msg.sender, "User ID: " + msg.author);
+	console.log("User Requested ID's through !ID command:");
+	console.log("Channel ID: " + msg.channel);
+	console.log("User ID: " + msg.author);
+}
+
+//ConfigTest command
+commandConfigTest = function(msg) {
+	//Grab the permissions of the person who called the command so we can verify
+	var permissions = msg.channel.permissionsOf(msg.sender);
+	
+	/*Verify Permissions:
+		* manageRolls
+		* manageChannels
+		
+		Otherwise refuse to run.
+	*/
+	console.log(permissions);
+	if (permissions.hasPermission("manageRoles") && permissions.hasPermission("manageChannels")) {
+		//Run Config Tests
+		bot.reply(msg, "``Running Config.json Test``");
+		
+		//Test status notifier
+		bot.sendMessage(msg.channel, "``Sending Test Message to Config.json statusLogChannel...``");
+		bot.sendMessage(ConfigDetails.statusLogChannel, "Configuration Test for Log Channel " + "<#" + ConfigDetails.statusLogChannel + ">", function(error, sentMsg) {
+			console.log("ConfigTest log Channel: " + ConfigDetails.statusLogChannel);
+			console.log("Erorr listing: " + error);
+		});
+	}
+}
+
 
 //when the bot is ready
 bot.on("ready", function () {
@@ -65,32 +131,13 @@ bot.on("message", function (msg) {
 	}
 	
 	//Stupid joke command
-	if (msg.content === "!fish") {
-		//error handling for the fish file
-		try {
-			var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
-			bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
-		}
-		catch (error) {
-			console.log(error);
-			bot.sendMessage(msg.channel, "There was an error with this command's data file.");
-		}
+	if (msg.content === "!fish" && ConfigDetails.featureStatus.fish === "1") {
+		commandFish(msg);
 	}
 	
 	//Randomly choose a user
-	if (msg.content === "!roulette") {
-		
-		//Select someone at random that isn't the bot
-		var activeUsers = bot.users;
-		var rouletteWinner = bot.user; //Set it to itself for next bit of logic
-		
-		//Make sure we don't chose someone who's offline, idle, or the bot
-		while (rouletteWinner === bot.user || rouletteWinner.status == "offline" || rouletteWinner.status == "idle") {
-			rouletteWinner = activeUsers[Math.floor(Math.random()*activeUsers.length)]; //Keep picking until bot doesn't win
-		}
-		
-		bot.sendMessage(msg.channel, rouletteWinner + " has been selected at random by the powers that be.")
-		console.log("Roulette Winner: " + rouletteWinner.username + " " + rouletteWinner.id);
+	if (msg.content === "!roulette" && ConfigDetails.featureStatus.roulette === "1") {
+		commandRoulette(msg);
 	}
 	
 	/* Commands that are mainly for debugging purposes:
@@ -99,36 +146,13 @@ bot.on("message", function (msg) {
 	*/
 		
 	//if message is "!ID"
-	if (msg.content === "!ID") {
-		//Respond and log Channel ID, User ID
-		bot.sendMessage(msg.sender, "Channel ID: " + msg.channel);
-		bot.sendMessage(msg.sender, "User ID: " + msg.author);
-		console.log("User Requested ID's through !ID command:");
-		console.log("Channel ID: " + msg.channel);
-		console.log("User ID: " + msg.author);
+	if (msg.content === "!ID" && ConfigDetails.featureStatus.ID === "1") {
+		commandID(msg);
 	}
 	
 	//if message is !ConfigTest, test variables in config.json and report errors.
-	if (msg.content === "!configtest") {
-		//Grab the permissions of the person who called the command so we can verify
-		var permissions = msg.channel.permissionsOf(msg.sender);
-		
-		/*Verify Permissions:
-			* manageRolls
-			* manageChannels
-			
-			Otherwise refuse to run.
-		*/
-		console.log(permissions);
-		if (permissions.hasPermission("manageRoles") && permissions.hasPermission("manageChannels")) {
-			//Run Config Tests
-			bot.reply(msg, "``Running Config.json Test``");
-			bot.sendMessage(msg.channel, "``Sending Test Message to Config.json statusLogChannel...``");
-			bot.sendMessage(ConfigDetails.statusLogChannel, "Configuration Test for Log Channel " + "<#" + ConfigDetails.statusLogChannel + ">", function(error, sentMsg) {
-				console.log("ConfigTest log Channel: " + ConfigDetails.statusLogChannel);
-				console.log("Erorr listing: " + error);
-			});
-		}
+	if (msg.content === "!configtest" && ConfigDetails.featureStatus.configTest === "1") {
+		commandConfigTest(msg);
 	}
 	
 });
