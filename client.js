@@ -1,10 +1,10 @@
 /*
 	This is DrIceBot, mostly a ping-pong bot that responds to commands.
 	Currently it is best configured when only running on one server due to the way config.json is utilized.
-	VERSION: 0.2.0
+	VERSION: 0.3.0
 */
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 
 //Load Dependencies
 var Discord = require("discord.js");
@@ -12,8 +12,6 @@ var Discord = require("discord.js");
 // Load JSON Files
 var AuthDetails = require("./config_files/auth.json");
 var ConfigDetails = require("./config_files/config.json");
-console.log(ConfigDetails);
-
 
 //Spawn globally required classes
 var bot = new Discord.Client();
@@ -26,14 +24,17 @@ console.log = function(data) {
     this.logCopy(timestamp, data);
 };
 
-commandHelp = function(msg) {
+//Send enabled help commands to requester
+commandHelp = function(msg) {	
 	//DM The commands to the caller
 	bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
 	bot.sendMessage(msg.sender, "!help - You're already doing it!");
-	bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
-	bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
-	bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
-	bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
+	
+	//If the function is enabled send the command
+	if (ConfigDetails.featureStatus.fish === "1") bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
+	if (ConfigDetails.featureStatus.roulette === "1") bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
+	if (ConfigDetails.featureStatus.ID === "1") bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
+	if (ConfigDetails.featureStatus.configTest === "1") bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 };
 
 //when the bot is ready
@@ -59,7 +60,7 @@ bot.on("message", function (msg) {
 		* !roulette
 	*/
 	//Sends PM to user of all relevant commands
-	if (msg.content === "!help") {
+	if (msg.content === "!help" && ConfigDetails.featureStatus.help === "1") {
 		commandHelp(msg);
 	}
 	
@@ -72,7 +73,7 @@ bot.on("message", function (msg) {
 		}
 		catch (error) {
 			console.log(error);
-			bot.sendMessage(msg.channel, "There was an error with this command.");
+			bot.sendMessage(msg.channel, "There was an error with this command's data file.");
 		}
 	}
 	
