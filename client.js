@@ -15,7 +15,7 @@ var ConfigDetails = require("./config_files/config.json");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
-var fs = require('fs'); //Used for File Input Output
+if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
 
 //Setup console log function
 console.logCopy = console.log.bind(console);
@@ -80,25 +80,49 @@ commandID = function(msg) {
 //ConfigTest command
 commandConfigTest = function(msg) {
 	//Grab the permissions of the person who called the command so we can verify
-	var permissions = msg.channel.permissionsOf(msg.sender);
+	try {
+		var permissions = msg.channel.permissionsOf(msg.sender);
+	}
+	catch (error) {
+		console.log("[ConfigTest] " + error);
+		bot.sendMessage(msg.channel, "You can't use that here");
+		return;
+	}
 	
 	/*Verify Permissions:
-		* manageRolls
+		* manageRoles
 		* manageChannels
 		
 		Otherwise refuse to run.
 	*/
-	console.log(permissions);
+	//console.log("User Calling !configtest has permissions: " + permissions);
+	
 	if (permissions.hasPermission("manageRoles") && permissions.hasPermission("manageChannels")) {
 		//Run Config Tests
 		bot.reply(msg, "``Running Config.json Test``");
+		console.log("************ RUNNING CONFIG TEST *************");
+		
+		//Print status of the features
+		var statString;
+		
+		console.log("Feature Enable/Disable Status");
+		for (var featStat in ConfigDetails.featureStatus) {
+			statString = ConfigDetails.featureStatus[featStat];
+			if (statString === "1") console.log("[ O N ] ... " + featStat);
+			if (statString === "0") console.log("[ OFF ] ... " + featStat);
+		}
 		
 		//Test status notifier
-		bot.sendMessage(msg.channel, "``Sending Test Message to Config.json statusLogChannel...``");
-		bot.sendMessage(ConfigDetails.statusLogChannel, "Configuration Test for Log Channel " + "<#" + ConfigDetails.statusLogChannel + ">", function(error, sentMsg) {
-			console.log("ConfigTest log Channel: " + ConfigDetails.statusLogChannel);
-			console.log("Erorr listing: " + error);
-		});
+		if (ConfigDetails.featureStatus.statusNotifier === "1") {
+			console.log("~StatusNotifier Test")
+			bot.sendMessage(ConfigDetails.statusLogChannel, "Configuration Test for Log Channel " + "<#" + ConfigDetails.statusLogChannel + ">", function(error, sentMsg) {
+				console.log("ConfigTest StatusNotifier Channel: " + ConfigDetails.statusLogChannel);
+				if (error != null) console.log("StatusNotifier Channel: " + error);
+				if (error == null) console.log("StatusNotifier Channel: Success");
+			});
+		}
+	} else {
+		console.log(msg.sender + " has insufficient permissions to run configtest");
 	}
 }
 
@@ -159,6 +183,9 @@ bot.on("message", function (msg) {
 
 //when the bot receives user status update
 bot.on("presence", function (usr, status, gID) {
+	//If not enabled don't do anything
+	if (ConfigDetails.featureStatus.statusNotifier === "0") return;
+	
 	//If the user status is online
 	if (status === "online") {
 		//If they are online and status is null, this is called when quitting a game too but that's acceptable for me.
