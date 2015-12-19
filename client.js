@@ -10,14 +10,10 @@ const VERSION = "0.2.0";
 var Discord = require("discord.js");
 
 // Load JSON Files
-try {
-	var AuthDetails = require("./config_files/auth.json");
-	var ConfigDetails = require("./config_files/config.json");
-} 
-catch (error) {
-	console.log("Unable to load a json file!");
-	throw error;
-}
+var AuthDetails = require("./config_files/auth.json");
+var ConfigDetails = require("./config_files/config.json");
+console.log(ConfigDetails);
+
 
 //Spawn globally required classes
 var bot = new Discord.Client();
@@ -25,10 +21,19 @@ var fs = require('fs'); //Used for File Input Output
 
 //Setup console log function
 console.logCopy = console.log.bind(console);
-console.log = function(data)
-{
+console.log = function(data) {
 	var timestamp = '[' + Date.now() + '] ';
     this.logCopy(timestamp, data);
+};
+
+commandHelp = function(msg) {
+	//DM The commands to the caller
+	bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
+	bot.sendMessage(msg.sender, "!help - You're already doing it!");
+	bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
+	bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
+	bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
+	bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 };
 
 //when the bot is ready
@@ -55,14 +60,7 @@ bot.on("message", function (msg) {
 	*/
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help") {
-		//DM The commands to the caller
-		bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
-		bot.sendMessage(msg.sender, "!help - You're already doing it!");
-		bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
-		bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
-		bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
-		bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
-		
+		commandHelp(msg);
 	}
 	
 	//Stupid joke command

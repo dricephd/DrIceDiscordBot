@@ -1,3 +1,11 @@
 {
-	"statusLogChannel" : "-1"
+	"statusLogChannel" : "-1",
+	"featureStatus": {
+		"fish" : "0",
+		"roulette" : "0",
+		"statusNotifier" : "0",
+		"help" : "0",
+		"ID" : "0",
+		"configTest" : "0"
+	}
 }
