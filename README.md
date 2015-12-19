@@ -7,13 +7,10 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 - !configtest command for testing your config
 - !fish command to slap yourself about with one of 1,068 species of fish
 - !roulette to select a user at random that is online
-- Rewrite config.json handling to be able to enable/disable features
+- Config.json controls what functions are enabled in the bot, by default it is currently everything
 
 ##Planned Features for 1.0##
-- Bot first setup assistance and error checking (Not everyone is technical)
-- User Agreement first time they join the server
-  - Options in config.json
-  - Registration channel where "I agree" must be typed to enter
+[Check out the v1.0 MileStone] (https://github.com/dricephd/DrIceDiscordBot/milestones/v1.0)
 
 ##Installation##
 ### Pre-Requesites
