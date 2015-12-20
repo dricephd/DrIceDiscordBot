@@ -1,7 +1,7 @@
 #DrIceDiscordBot#
 Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's primary backbone.
 
-![Platforms](https://img.shields.io/badge/OS%20Tested-Win%2010%2C%20WinServer%202012%20R2-brightgreen.svg)
+![Platforms](https://img.shields.io/badge/OS%20Tested-Win%2010%2C%20WinServer%202012%20R2-brightgreen.svg) [![Build Status](https://travis-ci.org/dricephd/DrIceDiscordBot.svg?branch=development)](https://travis-ci.org/dricephd/DrIceDiscordBot)
 ##Current Features in 0.4.0##
 - Status logging to channel ID supplied in config.json
 - !help command lists all current commands
@@ -23,5 +23,5 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 1. Extract desired branch to a folder
 2. Run `npm install` while within the folder
 3. Fill out auth.json with desired account credentials
-4. `node client.js`
-5. If you'd like to enable the status reporting enter the channel ID number into config.json (STRIP OUT '<','#', and '>' from what you get in the ``!ID`` command!)
+4. Setup config.json
+5. `node client.js`
