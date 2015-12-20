@@ -1,7 +1,8 @@
 #DrIceDiscordBot#
 Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's primary backbone.
 
-##Current Features in 0.3.0##
+![Platforms](https://img.shields.io/badge/OS%20Tested-Win%2010%2C%20WinServer%202012%20R2-brightgreen.svg)
+##Current Features in 0.4.0##
 - Status logging to channel ID supplied in config.json
 - !help command lists all current commands
 - !configtest command for testing your config

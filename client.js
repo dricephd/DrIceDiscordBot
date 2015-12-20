@@ -4,18 +4,19 @@
 	VERSION: 0.3.0
 */
 
-const VERSION = "0.3.0";
-
-//Load Dependencies
-var Discord = require("discord.js");
+const VERSION = "DEV-0.4.0";
 
 // Load JSON Files
 var AuthDetails = require("./config_files/auth.json");
 var ConfigDetails = require("./config_files/config.json");
 
+//Load Dependencies
+var Discord = require("discord.js");
+if (ConfigDetails.featureStatus.shitpost === "1") var request = require("request");
+if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
+
 //Spawn globally required classes
 var bot = new Discord.Client();
-if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
 
 //Setup console log function
 console.logCopy = console.log.bind(console);
@@ -28,12 +29,13 @@ console.log = function(data) {
 //Send enabled help commands to requester
 commandHelp = function(msg) {	
 	//DM The commands to the caller
-	bot.sendMessage(msg.sender, "**__Commands for DIDBC bot__**");
+	bot.sendMessage(msg.sender, "**__Commands for DIDBC bot V " + VERSION + "__**");
 	bot.sendMessage(msg.sender, "!help - You're already doing it!");
 	
 	//If the function is enabled send the command
 	if (ConfigDetails.featureStatus.fish === "1") bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
-	if (ConfigDetails.featureStatus.roulette === "1") bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.")
+	if (ConfigDetails.featureStatus.roulette === "1") bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.");
+	if (ConfigDetails.featureStatus.shitpost === "1") bot.sendMessage(msg.sender, "!shitpost - Post a shitpost from one of several subreddits");
 	if (ConfigDetails.featureStatus.ID === "1") bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
 	if (ConfigDetails.featureStatus.configTest === "1") bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 };
@@ -65,6 +67,54 @@ commandRoulette = function(msg) {
 	
 	bot.sendMessage(msg.channel, rouletteWinner + " has been selected at random by the powers that be.")
 	console.log("Roulette Winner: " + rouletteWinner.username + " " + rouletteWinner.id);
+}
+
+commandShitPost = function(msg) {
+	//#TODO: We really need caching because reddit fetch times SUCK!
+	
+	var url = ["https://www.reddit.com/r/anime_irl/.json","https://www.reddit.com/r/emojipasta/.json","https://www.reddit.com/r/youdontsurf/.json",
+		"https://www.reddit.com/r/me_irl/.json"];
+	var ranSelection; //Where we'll store our random selection for processing
+	var shitpostResponse; //The message we send back
+	
+	request({
+		url: url[Math.floor(Math.random()*url.length)],
+		json: true
+	}, function (error, response, body) {
+		
+		if (error != null) return;
+
+		//Randomly select a shitposting source then apply logic
+		ranSelection = body.data.children[Math.floor(Math.random()*body.data.children.length)];
+		
+		//NSFW is scary!!!!
+		if (ranSelection.data.over_18 == true) {
+			commandShitPost(msg);
+			return;
+		}
+		
+		if (ranSelection.data.subreddit == "emojipasta") {
+			//If It's emojipasta we need no real handling
+			shitpostResponse = ranSelection.data.selftext;
+		}
+		if (ranSelection.data.subreddit == "anime_irl" || ranSelection.data.subreddit == "youdontsurf" || ranSelection.data.subreddit == "me_irl") {
+			shitpostResponse = ranSelection.data.url;
+			
+			if(shitpostResponse.indexOf("/a/") > -1) {
+				//Try again because we don't like albums. Hard to embed
+				commandShitPost(msg);
+				return;
+			}
+			
+			//Used to check if an imgur image is "embeddable" meaning does it has .jpg,.gif,.gifv, or .png
+			if(!(shitpostResponse.indexOf(".jpg") > -1 || shitpostResponse.indexOf(".gif") > -1 || shitpostResponse.indexOf(".png") > -1)) {
+				//If not we can resolve it ourself.
+				shitpostResponse = shitpostResponse + ".jpg";
+			}
+		}
+		
+		bot.sendMessage(msg.channel, shitpostResponse);
+	});
 }
 
 //ID Values returned
@@ -164,6 +214,12 @@ bot.on("message", function (msg) {
 		commandRoulette(msg);
 	}
 	
+	//RSS Parsing Test
+	if (msg.content === "!shitpost" && ConfigDetails.featureStatus.shitpost === "1")
+	{
+		commandShitPost(msg);
+	}
+	
 	/* Commands that are mainly for debugging purposes:
 		* !ID
 		* !ConfigTest
@@ -192,7 +248,7 @@ bot.on("presence", function (usr, status, gID) {
 		if (gID === null) {
 			//send to the User Log Channel
 			bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + usr.username + " is now " + status, function(error, sentMsg) {
-				console.log(ConfigDetails.statusLogChannel + error);
+				if (error != null) console.log(ConfigDetails.statusLogChannel + error);
 			});
 		}
 		
