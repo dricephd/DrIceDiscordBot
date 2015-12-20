@@ -6,13 +6,13 @@
 
 const VERSION = "DEV-0.4.0";
 
-//Load Dependencies
-var Discord = require("discord.js");
-//#TODO: Make this non-mandatory if we aren't using it
-
 // Load JSON Files
 var AuthDetails = require("./config_files/auth.json");
 var ConfigDetails = require("./config_files/config.json");
+
+//Load Dependencies
+var Discord = require("discord.js");
+if (ConfigDetails.featureStatus.shitpost === "1") var request = require("request");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
@@ -66,6 +66,24 @@ commandRoulette = function(msg) {
 	
 	bot.sendMessage(msg.channel, rouletteWinner + " has been selected at random by the powers that be.")
 	console.log("Roulette Winner: " + rouletteWinner.username + " " + rouletteWinner.id);
+}
+
+commandShitPost = function(msg) {
+	
+	var url = ["https://www.reddit.com/r/anime_irl/.json","https://www.reddit.com/r/emojipasta/.json"];
+	var ranSelection; //Where we'll store our random selection for processing
+	
+	request({
+		url: url[Math.floor(Math.random()*url.length)],
+		json: true
+	}, function (error, response, body) {
+		
+		if (error != null) return;
+			
+		//Randomly select a shitposting source then apply logic
+		ranSelection = body.data.children[Math.floor(Math.random()*body.data.children.length)]
+		bot.sendMessage(msg.channel, ranSelection.data.url);		
+	});
 }
 
 //ID Values returned
@@ -168,25 +186,7 @@ bot.on("message", function (msg) {
 	//RSS Parsing Test
 	if (msg.content === "!shitpost")
 	{
-		//https://www.reddit.com/r/emojipasta/.json
-		var request = require("request");
-		
-		var url = "https://www.reddit.com/r/emojipasta/.json";
-		request({
-			url: url,
-			json: true
-		}, function (error, response, body) {
-			
-			//var test1 = JSON.parse(body);
-			//console.log(test1);
-			//bot.reply(msg,body.data.children[0].data.selftext);
-			
-			//for (var x in body.data.children) {
-				//bot.reply(msg,body.data.children[x].data.selftext);
-			//}
-			
-			bot.reply(msg,"Test" + body.data.children[Math.floor(Math.random()*body.data.children.length)].data.selftext);
-		});
+		commandShitPost(msg);
 	}
 	
 	/* Commands that are mainly for debugging purposes:
@@ -217,7 +217,7 @@ bot.on("presence", function (usr, status, gID) {
 		if (gID === null) {
 			//send to the User Log Channel
 			bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + usr.username + " is now " + status, function(error, sentMsg) {
-				console.log(ConfigDetails.statusLogChannel + error);
+				if (error != null) console.log(ConfigDetails.statusLogChannel + error);
 			});
 		}
 		

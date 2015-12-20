@@ -1,7 +1,7 @@
 #DrIceDiscordBot#
 Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's primary backbone.
 
-##Current Features in 0.3.0##
+##Current Features in 0.4.0##
 - Status logging to channel ID supplied in config.json
 - !help command lists all current commands
 - !configtest command for testing your config
