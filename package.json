@@ -1,12 +1,13 @@
 {
   "name": "dricebot",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "description": "Bot for Discord based on discord.js",
   "main": "client.js",
   "dependencies": {
     "discord.js": "^5.1.0",
+    "feedparser": "^1.1.4",
     "node.js": "0.0.0",
-    "split": "^1.0.0"
+    "request": "^2.67.0"
   },
   "author": "DrIcePhD",
   "license": "GPL-2.0"

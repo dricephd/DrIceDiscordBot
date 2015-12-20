@@ -4,10 +4,11 @@
 	VERSION: 0.3.0
 */
 
-const VERSION = "0.3.0";
+const VERSION = "DEV-0.4.0";
 
 //Load Dependencies
 var Discord = require("discord.js");
+//#TODO: Make this non-mandatory if we aren't using it
 
 // Load JSON Files
 var AuthDetails = require("./config_files/auth.json");
@@ -162,6 +163,30 @@ bot.on("message", function (msg) {
 	//Randomly choose a user
 	if (msg.content === "!roulette" && ConfigDetails.featureStatus.roulette === "1") {
 		commandRoulette(msg);
+	}
+	
+	//RSS Parsing Test
+	if (msg.content === "!shitpost")
+	{
+		//https://www.reddit.com/r/emojipasta/.json
+		var request = require("request");
+		
+		var url = "https://www.reddit.com/r/emojipasta/.json";
+		request({
+			url: url,
+			json: true
+		}, function (error, response, body) {
+			
+			//var test1 = JSON.parse(body);
+			//console.log(test1);
+			//bot.reply(msg,body.data.children[0].data.selftext);
+			
+			//for (var x in body.data.children) {
+				//bot.reply(msg,body.data.children[x].data.selftext);
+			//}
+			
+			bot.reply(msg,"Test" + body.data.children[Math.floor(Math.random()*body.data.children.length)].data.selftext);
+		});
 	}
 	
 	/* Commands that are mainly for debugging purposes:
