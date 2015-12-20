@@ -69,9 +69,11 @@ commandRoulette = function(msg) {
 }
 
 commandShitPost = function(msg) {
+	//#TODO: We really need caching because reddit fetch times SUCK!
 	
 	var url = ["https://www.reddit.com/r/anime_irl/.json","https://www.reddit.com/r/emojipasta/.json"];
 	var ranSelection; //Where we'll store our random selection for processing
+	var shitpostResponse; //The message we send back
 	
 	request({
 		url: url[Math.floor(Math.random()*url.length)],
@@ -79,10 +81,37 @@ commandShitPost = function(msg) {
 	}, function (error, response, body) {
 		
 		if (error != null) return;
-			
+
 		//Randomly select a shitposting source then apply logic
-		ranSelection = body.data.children[Math.floor(Math.random()*body.data.children.length)]
-		bot.sendMessage(msg.channel, ranSelection.data.url);		
+		ranSelection = body.data.children[Math.floor(Math.random()*body.data.children.length)];
+		
+		//NSFW is scary!!!!
+		if (ranSelection.data.over_18 == true) {
+			commandShitPost(msg);
+			return;
+		}
+		
+		if (ranSelection.data.subreddit == "emojipasta") {
+			//If It's emojipasta we need no real handling
+			shitpostResponse = ranSelection.data.selftext;
+		}
+		if (ranSelection.data.subreddit == "anime_irl") {
+			shitpostResponse = ranSelection.data.url;
+			
+			if(shitpostResponse.indexOf("/a/") > -1) {
+				//Try again because we don't like albums. Hard to embed
+				commandShitPost(msg);
+				return;
+			}
+			
+			//Used to check if an imgur image is "embeddable" meaning does it has .jpg,.gif,.gifv, or .png
+			if(!(shitpostResponse.indexOf(".jpg") > -1 || shitpostResponse.indexOf(".gif") > -1 || shitpostResponse.indexOf(".png") > -1)) {
+				//If not we can resolve it ourself.
+				shitpostResponse = shitpostResponse + ".jpg";
+			}
+		}
+		
+		bot.sendMessage(msg.channel, shitpostResponse);
 	});
 }
 
@@ -184,7 +213,7 @@ bot.on("message", function (msg) {
 	}
 	
 	//RSS Parsing Test
-	if (msg.content === "!shitpost")
+	if (msg.content === "!shitpost" && ConfigDetails.featureStatus.shitpost === "1")
 	{
 		commandShitPost(msg);
 	}
