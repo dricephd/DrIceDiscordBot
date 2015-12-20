@@ -13,10 +13,10 @@ var ConfigDetails = require("./config_files/config.json");
 //Load Dependencies
 var Discord = require("discord.js");
 if (ConfigDetails.featureStatus.shitpost === "1") var request = require("request");
+if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
 
 //Spawn globally required classes
 var bot = new Discord.Client();
-if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
 
 //Setup console log function
 console.logCopy = console.log.bind(console);
