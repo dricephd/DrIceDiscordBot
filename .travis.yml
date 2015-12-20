@@ -1,0 +1,6 @@
+language: node_js
+
+# test on 4.1/4.0
+node_js:
+  - 4.1
+  - 4.0
