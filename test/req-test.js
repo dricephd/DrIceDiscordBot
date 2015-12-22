@@ -29,4 +29,5 @@ bot.login(process.env.TestUser, process.env.TestPW, function(error, token) {
 function exit() {
 	bot.logout();
 	console.log("Tests completed.");
+	process.exit(0);
 }
