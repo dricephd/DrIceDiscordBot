@@ -9,11 +9,16 @@ var bot = new Discord.Client();
 //when the bot is ready
 bot.on("ready", function () {
 	console.log("Bot Reported as ready");
+	
+	exit();
 });
 
 //Login the bot
-bot.login(process.env.TestUser, process.env.TestPW, function(error, sentMsg) {
-	if (error != null) return console.log("Login Errors: " + error);
+bot.login(process.env.TestUser, process.env.TestPW, function(error, token) {
+	if (!token || token.length < 1) {
+		console.log("Bad token.");
+		return;
+	}
 	console.log("Bot Has Logged In Successfully");
 });
 
@@ -21,6 +26,7 @@ bot.login(process.env.TestUser, process.env.TestPW, function(error, sentMsg) {
 //???
 
 //Logout the bot
-bot.logout(function(error) {
-	if (error) return console.log("Logout Errors: " + error);
-});
+function exit() {
+	bot.logout();
+	console.log("Tests completed.");
+}
