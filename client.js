@@ -43,15 +43,14 @@ commandHelp = function(msg) {
 //Hits the user with a fish loaded randomly from our file
 commandFish = function(msg) {
 	//error handling for the fish file
-	try {
-		var fishList = fs.readFileSync("./dat_files/commonFishNames.txt").toString().split("\n");
+	var fishList;
+	fs.readFile("./dat_files/commonFishNames.txt",function (error,data) {
+		if (error) {
+			return console.log(error);
+		}
+		fishList=data.toString().split("\n");
 		bot.sendMessage(msg.channel, "**Slaps " + msg.author + " about with a really smelly " + fishList[Math.floor(Math.random()*fishList.length)] + "**");
-	}
-	catch (error) {
-		console.log(error);
-		bot.sendMessage(msg.channel, "There was an error with this command's data file.");
-	}
-	
+	});
 }
 
 //Chooses a user at random
@@ -79,10 +78,15 @@ commandShitPost = function(msg) {
 	
 	request({
 		url: url[Math.floor(Math.random()*url.length)],
-		json: true
+		json: true,
+		maxSockets: 10
 	}, function (error, response, body) {
 		
-		if (error != null) return;
+		if (error != null) { 
+			bot.sendMessage(msg.channel, "There was an error fetching the shitpost.");
+			console.log(error);
+			return;
+		}
 
 		//Randomly select a shitposting source then apply logic
 		ranSelection = body.data.children[Math.floor(Math.random()*body.data.children.length)];
@@ -112,7 +116,6 @@ commandShitPost = function(msg) {
 				shitpostResponse = shitpostResponse + ".jpg";
 			}
 		}
-		
 		bot.sendMessage(msg.channel, shitpostResponse);
 	});
 }
