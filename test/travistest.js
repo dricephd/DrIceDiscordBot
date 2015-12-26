@@ -2,6 +2,7 @@
 var Discord = require("discord.js");
 var request = require("request");
 var fs = require('fs');
+var ShitPost = require("../proj_modules/shitpost.js");
 
 var bot = new Discord.Client();
 

@@ -12,7 +12,7 @@ var ConfigDetails = require("./config_files/config.json");
 
 //Load Dependencies
 var Discord = require("discord.js");
-if (ConfigDetails.featureStatus.shitpost === "1") var request = require("request");
+if (ConfigDetails.featureStatus.shitpost === "1") var ShitPost = require("./proj_modules/shitpost.js");
 if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
 
 //Spawn globally required classes
@@ -66,58 +66,6 @@ commandRoulette = function(msg) {
 	
 	bot.sendMessage(msg.channel, rouletteWinner + " has been selected at random by the powers that be.")
 	console.log("Roulette Winner: " + rouletteWinner.username + " " + rouletteWinner.id);
-}
-
-commandShitPost = function(msg) {
-	//#TODO: We really need caching because reddit fetch times SUCK!
-	
-	var url = ["https://www.reddit.com/r/anime_irl/.json","https://www.reddit.com/r/emojipasta/.json","https://www.reddit.com/r/youdontsurf/.json",
-		"https://www.reddit.com/r/me_irl/.json"];
-	var ranSelection; //Where we'll store our random selection for processing
-	var shitpostResponse; //The message we send back
-	
-	request({
-		url: url[Math.floor(Math.random()*url.length)],
-		json: true,
-		maxSockets: 10
-	}, function (error, response, body) {
-		
-		if (error != null) { 
-			bot.sendMessage(msg.channel, "There was an error fetching the shitpost.");
-			console.log(error);
-			return;
-		}
-
-		//Randomly select a shitposting source then apply logic
-		ranSelection = body.data.children[Math.floor(Math.random()*body.data.children.length)];
-		
-		//NSFW is scary!!!!
-		if (ranSelection.data.over_18 == true) {
-			commandShitPost(msg);
-			return;
-		}
-		
-		if (ranSelection.data.subreddit == "emojipasta") {
-			//If It's emojipasta we need no real handling
-			shitpostResponse = ranSelection.data.selftext;
-		}
-		if (ranSelection.data.subreddit == "anime_irl" || ranSelection.data.subreddit == "youdontsurf" || ranSelection.data.subreddit == "me_irl") {
-			shitpostResponse = ranSelection.data.url;
-			
-			if(shitpostResponse.indexOf("/a/") > -1) {
-				//Try again because we don't like albums. Hard to embed
-				commandShitPost(msg);
-				return;
-			}
-			
-			//Used to check if an imgur image is "embeddable" meaning does it has .jpg,.gif,.gifv, or .png
-			if(!(shitpostResponse.indexOf(".jpg") > -1 || shitpostResponse.indexOf(".gif") > -1 || shitpostResponse.indexOf(".png") > -1)) {
-				//If not we can resolve it ourself.
-				shitpostResponse = shitpostResponse + ".jpg";
-			}
-		}
-		bot.sendMessage(msg.channel, shitpostResponse);
-	});
 }
 
 //ID Values returned
@@ -197,11 +145,14 @@ bot.on("disconnected", function () {
 
 //when the bot receives a message
 bot.on("message", function (msg) {
+	var messageResponse;
 	/* Commands for primary use
 		* !help
 		* !fish
 		* !roulette
+		* !shitpost
 	*/
+	//#TODO: Revamp so all of these return to messageResponse variable.
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && ConfigDetails.featureStatus.help === "1") {
 		commandHelp(msg);
@@ -217,10 +168,14 @@ bot.on("message", function (msg) {
 		commandRoulette(msg);
 	}
 	
-	//RSS Parsing Test
+	//Shitposting from reddit's JSON fetch
 	if (msg.content === "!shitpost" && ConfigDetails.featureStatus.shitpost === "1")
 	{
-		commandShitPost(msg);
+		ShitPost.fetchShitPost(function (error,data){
+			if (error == null) {
+				bot.sendMessage(msg.channel, data);
+			}
+		});
 	}
 	
 	/* Commands that are mainly for debugging purposes:
