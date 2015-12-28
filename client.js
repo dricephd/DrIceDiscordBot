@@ -42,11 +42,11 @@ commandHelp = function(msg) {
 	bot.sendMessage(msg.sender, "!help - You're already doing it!");
 	
 	//If the function is enabled send the command
-	if (ConfigDetails.featureStatus.fish === "1") bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
-	if (ConfigDetails.featureStatus.roulette === "1") bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.");
-	if (ConfigDetails.featureStatus.shitpost === "1") bot.sendMessage(msg.sender, "!shitpost - Post a shitpost from one of several subreddits");
-	if (ConfigDetails.featureStatus.ID === "1") bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
-	if (ConfigDetails.featureStatus.configTest === "1") bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
+	if (FEATURE_FISH) bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
+	if (FEATURE_ROULETTE) bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.");
+	if (FEATURE_SHITPOST) bot.sendMessage(msg.sender, "!shitpost - Post a shitpost from one of several subreddits");
+	if (FEATURE_ID) bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
+	if (FEATURE_CONFIGTEST) bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
 };
 
 //Hits the user with a fish loaded randomly from our file
@@ -93,6 +93,7 @@ commandConfigTest = function(msg) {
 	try {
 		var permissions = msg.channel.permissionsOf(msg.sender);
 	}
+	//IF it's in a PM Channel don't let the rest run or we'll crash our bot
 	catch (error) {
 		console.log("[ConfigTest] " + error);
 		bot.sendMessage(msg.channel, "You can't use that here");
@@ -123,7 +124,7 @@ commandConfigTest = function(msg) {
 		}
 		
 		//Test status notifier
-		if (ConfigDetails.featureStatus.statusNotifier === "1") {
+		if (FEATURE_STATUSNOTIFY) {
 			console.log("~StatusNotifier Test")
 			bot.sendMessage(ConfigDetails.statusLogChannel, "Configuration Test for Log Channel " + "<#" + ConfigDetails.statusLogChannel + ">", function(error, sentMsg) {
 				console.log("ConfigTest StatusNotifier Channel: " + ConfigDetails.statusLogChannel);
@@ -163,22 +164,22 @@ bot.on("message", function (msg) {
 	*/
 	//#TODO: Revamp so all of these return to messageResponse variable.
 	//Sends PM to user of all relevant commands
-	if (msg.content === "!help" && ConfigDetails.featureStatus.help === "1") {
+	if (msg.content === "!help" && FEATURE_HELP) {
 		commandHelp(msg);
 	}
 	
 	//Stupid joke command
-	if (msg.content === "!fish" && ConfigDetails.featureStatus.fish === "1") {
+	if (msg.content === "!fish" && FEATURE_FISH) {
 		commandFish(msg);
 	}
 	
 	//Randomly choose a user
-	if (msg.content === "!roulette" && ConfigDetails.featureStatus.roulette === "1") {
+	if (msg.content === "!roulette" && FEATURE_ROULETTE) {
 		commandRoulette(msg);
 	}
 	
 	//Shitposting from reddit's JSON fetch
-	if (msg.content === "!shitpost" && ConfigDetails.featureStatus.shitpost === "1")
+	if (msg.content === "!shitpost" && FEATURE_SHITPOST)
 	{
 		ShitPost.fetchShitPost(function (error,data){
 			if (error == null) {
@@ -193,12 +194,12 @@ bot.on("message", function (msg) {
 	*/
 		
 	//if message is "!ID"
-	if (msg.content === "!ID" && ConfigDetails.featureStatus.ID === "1") {
+	if (msg.content === "!ID" && FEATURE_ID) {
 		commandID(msg);
 	}
 	
 	//if message is !ConfigTest, test variables in config.json and report errors.
-	if (msg.content === "!configtest" && ConfigDetails.featureStatus.configTest === "1") {
+	if (msg.content === "!configtest" && FEATURE_CONFIGTEST) {
 		commandConfigTest(msg);
 	}
 	
@@ -207,22 +208,21 @@ bot.on("message", function (msg) {
 //when the bot receives user status update
 bot.on("presence", function (usr, status, gID) {
 	//If not enabled don't do anything
-	if (ConfigDetails.featureStatus.statusNotifier === "0") return;
-	
+	if (!FEATURE_STATUSNOTIFY) return;
 	//If the user status is online
-	if (status === "online") {
+	if (status == "online") {
 		//If they are online and status is null, this is called when quitting a game too but that's acceptable for me.
-		if (gID === null) {
+		if (gID === undefined) {
 			//send to the User Log Channel
 			bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + usr.username + " is now " + status, function(error, sentMsg) {
 				if (error != null) console.log(ConfigDetails.statusLogChannel + error);
 			});
 		}
 		
-	} else if (status === "offline") {
+	} else if (status == "offline") {
 		//Send to the User Log Channel that he's offline
 		bot.sendMessage(ConfigDetails.statusLogChannel, "❌" + usr.username + " is now " + status);
-	} else if (status === "idle") {
+	} else if (status == "idle") {
 		//Send to the User Log Channel that he's idle
 		bot.sendMessage(ConfigDetails.statusLogChannel, "🕓" + usr.username + " is now " + status);
 	} else {
