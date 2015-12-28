@@ -23,9 +23,6 @@ bot.login(process.env.TestUser, process.env.TestPW, function(error, token) {
 	}
 });
 
-//Run some tests
-//???
-
 //when the bot is ready
 bot.on("ready", function () {
 	success("Bot Login");
@@ -43,15 +40,8 @@ function testBotModules()
 		failure("ShitPost: Module failed to load.");
 		throw error;
 	}
-	ShitPost.fetchShitPost(function (error,data){
-		if (error == null) {
-			success("ShitPost");
-		}
-		if (error) {
-			failure("ShitPost");
-			return;
-		}
-	});
+	success("ShitPost");
+	
 	
 	//Exit
 	success("Modules Loaded.")

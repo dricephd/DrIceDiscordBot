@@ -26,3 +26,9 @@ config/*.json
 
 # Optional REPL history
 .node_repl_history
+
+# .bat file I use for testing
+WinNPMTest.bat
+
+# Don't need logs folder
+logs

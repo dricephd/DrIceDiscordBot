@@ -16,8 +16,7 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 
 ##Installation##
 ### Pre-Requesites
-- discord.js required
-  - node.js required by discord.js
+- node.js
 - NPM Package Manager
 
 ###Running for the first time###

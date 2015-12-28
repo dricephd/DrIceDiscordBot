@@ -1,7 +1,7 @@
 /*
 	This is DrIceBot, mostly a ping-pong bot that responds to commands.
 	Currently it is best configured when only running on one server due to the way config.json is utilized.
-	VERSION: 0.3.0
+	VERSION: 0.4.0
 */
 
 const VERSION = "DEV-0.4.0";
@@ -10,10 +10,19 @@ const VERSION = "DEV-0.4.0";
 var AuthDetails = require("./config/auth.json");
 var ConfigDetails = require("./config/config.json");
 
+// Set Feature Constants
+const FEATURE_FISH = ConfigDetails.featureStatus.fish;
+const FEATURE_ROULETTE = ConfigDetails.featureStatus.roulette;
+const FEATURE_SHITPOST = ConfigDetails.featureStatus.shitpost;
+const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
+const FEATURE_HELP = ConfigDetails.featureStatus.help;
+const FEATURE_ID = ConfigDetails.featureStatus.ID;
+const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
+
 //Load Dependencies
 var Discord = require("discord.js");
-if (ConfigDetails.featureStatus.shitpost === "1") var ShitPost = require("./lib/shitpost.js");
-if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
+if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
+if (FEATURE_FISH) var fs = require('fs'); //Used for File Input Output
 
 //Spawn globally required classes
 var bot = new Discord.Client();
