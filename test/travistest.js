@@ -1,31 +1,63 @@
 //Run tests
 var Discord = require("discord.js");
-var request = require("request");
 var fs = require('fs');
-var ShitPost = require("../proj_modules/shitpost.js");
 
 var bot = new Discord.Client();
 
+function success(msg) {
+	console.log("✓ ... " + msg);
+}
 
-//when the bot is ready
-bot.on("ready", function () {
-	console.log("Bot Reported as ready");
-	
-	exit();
-});
+function failure(msg) {
+	console.log("X ... " + msg);
+}
 
 //Login the bot
 bot.login(process.env.TestUser, process.env.TestPW, function(error, token) {
 	if (!token || token.length < 1) {
-		console.log("Bad token.");
+		failure("Bot Login: Bad Token Response");
 		return;
 	}
-	console.log("Bot Has Logged In Successfully");
+	if (error) {
+		failure("Bot Login");
+	}
 });
 
 //Run some tests
 //???
 
+//when the bot is ready
+bot.on("ready", function () {
+	success("Bot Login");
+	
+	testBotModules();
+});
+
+function testBotModules()
+{
+	//ShitPost Test
+	try {
+		var ShitPost = require("../lib/shitpost.js");
+	}
+	catch (error) {
+		failure("ShitPost: Module failed to load.");
+		throw error;
+	}
+	ShitPost.fetchShitPost(function (error,data){
+		if (error == null) {
+			success("ShitPost");
+		}
+		if (error) {
+			failure("ShitPost");
+			return;
+		}
+	});
+	
+	//Exit
+	success("Modules Loaded.")
+	exit();
+	
+}
 //Logout the bot
 function exit() {
 	bot.logout();

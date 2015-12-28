@@ -7,12 +7,12 @@
 const VERSION = "DEV-0.4.0";
 
 // Load JSON Files
-var AuthDetails = require("./config_files/auth.json");
-var ConfigDetails = require("./config_files/config.json");
+var AuthDetails = require("./config/auth.json");
+var ConfigDetails = require("./config/config.json");
 
 //Load Dependencies
 var Discord = require("discord.js");
-if (ConfigDetails.featureStatus.shitpost === "1") var ShitPost = require("./proj_modules/shitpost.js");
+if (ConfigDetails.featureStatus.shitpost === "1") var ShitPost = require("./lib/shitpost.js");
 if (ConfigDetails.featureStatus.fish === "1") var fs = require('fs'); //Used for File Input Output
 
 //Spawn globally required classes
@@ -44,7 +44,7 @@ commandHelp = function(msg) {
 commandFish = function(msg) {
 	//error handling for the fish file
 	var fishList;
-	fs.readFile("./dat_files/commonFishNames.txt",function (error,data) {
+	fs.readFile("./dat/commonFishNames.txt",function (error,data) {
 		if (error) {
 			return console.log(error);
 		}

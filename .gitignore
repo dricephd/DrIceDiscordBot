@@ -19,7 +19,7 @@ build/Release
 node_modules
 
 #JSON files that have been customized
-config_files/*.json
+config/*.json
 
 # Optional npm cache directory
 .npm
