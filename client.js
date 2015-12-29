@@ -37,17 +37,20 @@ console.log = function(data) {
 
 
 //Send enabled help commands to requester
-commandHelp = function(msg) {	
+commandHelp = function(msg) {
+	//Buffer all of our response then send it so we don't get weird ordering
+	var msgResponse="";
 	//DM The commands to the caller
-	bot.sendMessage(msg.sender, "**__Commands for DIDBC bot V " + VERSION + "__**");
-	bot.sendMessage(msg.sender, "!help - You're already doing it!");
+	msgResponse += "**__Commands for DIDBC bot Ver. " + VERSION + "__**\n";
+	msgResponse += "!help - You're already doing it!\n";
 	
 	//If the function is enabled send the command
-	if (FEATURE_FISH) bot.sendMessage(msg.sender, "!fish - Slaps requester about with a random fish!");
-	if (FEATURE_ROULETTE) bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.");
-	if (FEATURE_SHITPOST) bot.sendMessage(msg.sender, "!shitpost - Post a shitpost from one of several subreddits");
-	if (FEATURE_ID) bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
-	if (FEATURE_CONFIGTEST) bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json");
+	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
+	if (FEATURE_ROULETTE) msgResponse += "!roulette - Choose an active user in the channel at random.\n";
+	if (FEATURE_SHITPOST) msgResponse += "!shitpost - Post a shitpost from one of several subreddits\n";
+	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
+	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
+	bot.sendMessage(msg.sender, msgResponse);
 };
 
 //Hits the user with a fish loaded randomly from our file
