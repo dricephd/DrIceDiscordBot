@@ -1,7 +1,7 @@
 #DrIceDiscordBot#
 Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's primary backbone.
 
-![Platforms](https://img.shields.io/badge/OS%20Tested-Win%2010%2C%20WinServer%202012%20R2-brightgreen.svg) [![Build Status](https://travis-ci.org/dricephd/DrIceDiscordBot.svg?branch=development)](https://travis-ci.org/dricephd/DrIceDiscordBot)
+![Platforms](https://img.shields.io/badge/OS%20Tested-Win%2010%2C%20WinServer%202012%20R2-brightgreen.svg) [![Build Status](https://travis-ci.org/dricephd/DrIceDiscordBot.svg?branch=development)](https://travis-ci.org/dricephd/DrIceDiscordBot) [![PT](https://img.shields.io/badge/Planning%20Tool-PivotalTracker-lightgrey.svg)](https://www.pivotaltracker.com/n/projects/1505644)
 ##Current Features in 0.4.0##
 - Status logging to channel ID supplied in config.json
 - !help command lists all current commands
