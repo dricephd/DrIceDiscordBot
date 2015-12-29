@@ -22,6 +22,7 @@ const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
 //Load Dependencies
 var Discord = require("discord.js");
 if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
+if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
 if (FEATURE_FISH) var fs = require('fs'); //Used for File Input Output
 
 //Spawn globally required classes
@@ -46,7 +47,7 @@ commandHelp = function(msg) {
 	if (FEATURE_ROULETTE) bot.sendMessage(msg.sender, "!roulette - Choose an active user in the channel at random.");
 	if (FEATURE_SHITPOST) bot.sendMessage(msg.sender, "!shitpost - Post a shitpost from one of several subreddits");
 	if (FEATURE_ID) bot.sendMessage(msg.sender, "!ID - PM the Channel and User ID to caller and print them both in the log.");
-	if (FEATURE_CONFIGTEST) bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json [Requires manageRolls and manageChannels Permissions]");
+	if (FEATURE_CONFIGTEST) bot.sendMessage(msg.sender, "!configtest - Test the settings in config.json");
 };
 
 //Hits the user with a fish loaded randomly from our file
@@ -87,57 +88,6 @@ commandID = function(msg) {
 	console.log("User ID: " + msg.author);
 }
 
-//ConfigTest command
-commandConfigTest = function(msg) {
-	//Grab the permissions of the person who called the command so we can verify
-	try {
-		var permissions = msg.channel.permissionsOf(msg.sender);
-	}
-	//IF it's in a PM Channel don't let the rest run or we'll crash our bot
-	catch (error) {
-		console.log("[ConfigTest] " + error);
-		bot.sendMessage(msg.channel, "You can't use that here");
-		return;
-	}
-	
-	/*Verify Permissions:
-		* manageRoles
-		* manageChannels
-		
-		Otherwise refuse to run.
-	*/
-	//console.log("User Calling !configtest has permissions: " + permissions);
-	
-	if (permissions.hasPermission("manageRoles") && permissions.hasPermission("manageChannels")) {
-		//Run Config Tests
-		bot.reply(msg, "``Running Config.json Test``");
-		console.log("************ RUNNING CONFIG TEST *************");
-		
-		//Print status of the features
-		var statString;
-		
-		console.log("Feature Enable/Disable Status");
-		for (var featStat in ConfigDetails.featureStatus) {
-			statString = ConfigDetails.featureStatus[featStat];
-			if (statString === "1") console.log("[ O N ] ... " + featStat);
-			if (statString === "0") console.log("[ OFF ] ... " + featStat);
-		}
-		
-		//Test status notifier
-		if (FEATURE_STATUSNOTIFY) {
-			console.log("~StatusNotifier Test")
-			bot.sendMessage(ConfigDetails.statusLogChannel, "Configuration Test for Log Channel " + "<#" + ConfigDetails.statusLogChannel + ">", function(error, sentMsg) {
-				console.log("ConfigTest StatusNotifier Channel: " + ConfigDetails.statusLogChannel);
-				if (error != null) console.log("StatusNotifier Channel: " + error);
-				if (error == null) console.log("StatusNotifier Channel: Success");
-			});
-		}
-	} else {
-		console.log(msg.sender + " has insufficient permissions to run configtest");
-	}
-}
-
-
 //when the bot is ready
 bot.on("ready", function () {
 	console.log("Running Version " + VERSION);
@@ -155,7 +105,7 @@ bot.on("disconnected", function () {
 
 //when the bot receives a message
 bot.on("message", function (msg) {
-	var messageResponse;
+	var messageResponse="";
 	/* Commands for primary use
 		* !help
 		* !fish
@@ -181,9 +131,10 @@ bot.on("message", function (msg) {
 	//Shitposting from reddit's JSON fetch
 	if (msg.content === "!shitpost" && FEATURE_SHITPOST)
 	{
-		ShitPost.fetchShitPost(function (error,data){
+		ShitPost.fetchShitPost(function (error,data) {
 			if (error == null) {
-				bot.sendMessage(msg.channel, data);
+				messageResponse=data;
+				bot.sendMessage(msg.channel,data);
 			}
 		});
 	}
@@ -200,7 +151,16 @@ bot.on("message", function (msg) {
 	
 	//if message is !ConfigTest, test variables in config.json and report errors.
 	if (msg.content === "!configtest" && FEATURE_CONFIGTEST) {
-		commandConfigTest(msg);
+		ConfigTest.runConfigTest(bot,msg, function (error,data) {
+			if (error) {
+				messageResponse=error;
+			}
+			if(!error) {
+				messageResponse=data;
+			}
+			console.log(messageResponse);
+			bot.sendMessage(msg.channel,messageResponse);
+		});
 	}
 	
 });
