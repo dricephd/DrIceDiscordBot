@@ -40,7 +40,6 @@ console.log = function(data) {
     this.logCopy(timestamp, data);
 };
 
-
 //Send enabled help commands to requester
 commandHelp = function(msg) {
 	//Buffer all of our response then send it so we don't get weird ordering
@@ -127,8 +126,10 @@ bot.on("message", function (msg) {
 		* !shitpost
 	*/
 	//Check if user is violating a command cooldown
+	//This will need to be moved
 	if (FEATURE_COOLDOWN) {
-		//Checkssss
+		//Checks Time
+		var response = Cooldown.checkCooldown(msg);
 	}
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP) {
@@ -207,7 +208,15 @@ bot.on("presence", function (usr, status, gID) {
 	}
 });
 
-//Finally, let the bot login.
-bot.login(AuthDetails.email, AuthDetails.password, function(error, sentMsg) {
-	if (error != null) console.log("Login Errors: " + error);
-});
+//Setup called when bot first created.
+function botInitialization() {
+	//coodlown.js object
+	if (FEATURE_COOLDOWN) Cooldown.Setup(CONFIG_COOLDOWN);
+	
+	//Let the bot login.
+	bot.login(AuthDetails.email, AuthDetails.password, function(error, sentMsg) {
+		if (error != null) console.log("Login Errors: " + error);
+	});
+}
+
+botInitialization();
