@@ -72,6 +72,12 @@ commandRoulette = function(msg) {
 	var activeUsers = bot.users;
 	var rouletteWinner = bot.user; //Set it to itself for next bit of logic
 	
+	//Avoid infinite loop if bot is alone
+	if (activeUsers.length <= 1) {
+		bot.sendMessage(msg.channel, "You need more people to use this command.");
+		return;
+	}
+	
 	//Make sure we don't chose someone who's offline, idle, or the bot
 	while (rouletteWinner === bot.user || rouletteWinner.status == "offline" || rouletteWinner.status == "idle") {
 		rouletteWinner = activeUsers[Math.floor(Math.random()*activeUsers.length)]; //Keep picking until bot doesn't win
