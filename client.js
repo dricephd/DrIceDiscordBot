@@ -4,7 +4,7 @@
 	VERSION: 0.4.0
 */
 
-const VERSION = "DEV-0.4.0";
+const VERSION = "0.4.0";
 
 // Load JSON Files
 var AuthDetails = require("./config/auth.json");
