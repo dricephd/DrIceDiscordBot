@@ -18,12 +18,17 @@ const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
 const FEATURE_HELP = ConfigDetails.featureStatus.help;
 const FEATURE_ID = ConfigDetails.featureStatus.ID;
 const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
+const FEATURE_COOLDOWN = ConfigDetails.featureStatus.cooldown;
+
+//Set Non-Feature Constants
+const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
 
 //Load Dependencies
 var Discord = require("discord.js");
 if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
 if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
 if (FEATURE_FISH) var fs = require('fs'); //Used for File Input Output
+if (FEATURE_COOLDOWN) var Cooldown = require("./lib/cooldown.js");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
@@ -121,7 +126,10 @@ bot.on("message", function (msg) {
 		* !roulette
 		* !shitpost
 	*/
-	//#TODO: Revamp so all of these return to messageResponse variable.
+	//Check if user is violating a command cooldown
+	if (FEATURE_COOLDOWN) {
+		//Checkssss
+	}
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP) {
 		commandHelp(msg);
