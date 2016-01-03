@@ -101,8 +101,15 @@ commandID = function(msg) {
 	console.log("User ID: " + msg.author);
 }
 
+/*
+	Bot Events Handling
+*/
+
 //when the bot is ready
 bot.on("ready", function () {
+	//coodlown.js object setup
+	if (FEATURE_COOLDOWN) Cooldown.Setup(CONFIG_COOLDOWN, bot.users);
+		
 	console.log("Running Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
 });
@@ -129,7 +136,9 @@ bot.on("message", function (msg) {
 	//This will need to be moved
 	if (FEATURE_COOLDOWN) {
 		//Checks Time
-		var response = Cooldown.checkCooldown(msg);
+		Cooldown.checkCooldown(msg, function(error,response) {
+			console.log(response);
+		});
 	}
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP) {
@@ -210,12 +219,11 @@ bot.on("presence", function (usr, status, gID) {
 
 //Setup called when bot first created.
 function botInitialization() {
-	//coodlown.js object
-	if (FEATURE_COOLDOWN) Cooldown.Setup(CONFIG_COOLDOWN);
-	
 	//Let the bot login.
-	bot.login(AuthDetails.email, AuthDetails.password, function(error, sentMsg) {
-		if (error != null) console.log("Login Errors: " + error);
+	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
+		if (error) {
+			console.log("Login Errors: " + error);
+		}
 	});
 }
 
