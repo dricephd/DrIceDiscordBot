@@ -1,10 +1,10 @@
 /*
 	This is DrIceBot, mostly a ping-pong bot that responds to commands.
 	Currently it is best configured when only running on one server due to the way config.json is utilized.
-	VERSION: 0.4.0
+	VERSION: DEV-0.5.0
 */
 
-const VERSION = "DEV-0.4.0";
+const VERSION = "DEV-0.5.0";
 
 // Load JSON Files
 var AuthDetails = require("./config/auth.json");
