@@ -135,14 +135,15 @@ bot.on("message", function (msg) {
 	//Check if user is violating a command cooldown
 	//This will need to be moved
 	if (FEATURE_COOLDOWN) {
-		//Checks Time
-		Cooldown.checkCooldown(msg, function(error,response) {
-			console.log(response);
-		});
+		//If we're on cooldown.
+		if (Cooldown.checkCooldown(msg)) {
+			return;
+		}
 	}
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP) {
 		commandHelp(msg);
+		Cooldown.updateTimeStamp(msg);
 	}
 	
 	//Stupid joke command
