@@ -58,7 +58,14 @@ function testBotModules()
 	//ShitPost Test
 	try {
 		var ShitPost = require("../lib/shitpost.js");
-		bot.sendMessage(testTextChannel,ShitPost.fetchShitPost());
+		//bot.sendMessage(testTextChannel,ShitPost.fetchShitPost());
+		
+		ShitPost.fetchShitPost(function (error,data) {
+			if (error == null) {
+				messageResponse=data;
+				bot.sendMessage(testTextChannel,data);
+			}
+		});
 	}
 	catch (error) {
 		failure("ShitPost: Module failed to load.");
