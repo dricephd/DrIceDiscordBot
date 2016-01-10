@@ -108,7 +108,7 @@ commandID = function(msg) {
 //when the bot is ready
 bot.on("ready", function () {
 	//coodlown.js object setup
-	if (FEATURE_COOLDOWN) Cooldown.Setup(CONFIG_COOLDOWN, bot.users);
+	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
 		
 	console.log("Running Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
@@ -132,8 +132,10 @@ bot.on("message", function (msg) {
 		* !roulette
 		* !shitpost
 	*/
-	//Check if user is violating a command cooldown
-	//This will need to be moved
+	//If it detects its own message skip
+	if (msg.author.id == bot.user.id) return;
+	
+	//Check for coodlown
 	if (FEATURE_COOLDOWN) {
 		//If we're on cooldown stop early
 		if (Cooldown.checkCooldown(msg)) {
