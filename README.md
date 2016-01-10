@@ -11,8 +11,8 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 - !shitpost command to place shitpost from certain subreddits
 - Config.json controls what functions are enabled in the bot, by default it is currently everything
 
-##Planned Features for 1.0##
-[Check out the v1.0 MileStone] (https://github.com/dricephd/DrIceDiscordBot/milestones/v1.0)
+##Planned Features for 1.0.0##
+[Everything Above v1.0.0 in PT] (https://www.pivotaltracker.com/n/projects/1505644)
 
 ##Installation##
 ### Pre-Requesites
@@ -24,4 +24,4 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 2. Run `npm install` while within the folder
 3. Fill out auth.json with desired account credentials
 4. Setup config.json
-5. `node client.js`
+5. `node client.js` in command line
