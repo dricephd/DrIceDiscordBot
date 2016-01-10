@@ -135,34 +135,27 @@ bot.on("message", function (msg) {
 	//If it detects its own message skip
 	if (msg.author.id == bot.user.id) return;
 	
-	//Check for coodlown
-	if (FEATURE_COOLDOWN) {
-		//If we're on cooldown stop early
-		if (Cooldown.checkCooldown(msg)) {
-			return;
-		}
-	}
 	//Sends PM to user of all relevant commands
-	if (msg.content === "!help" && FEATURE_HELP) {
+	if (msg.content === "!help" && FEATURE_HELP && !Cooldown.checkCooldown(msg)) {
 		//Update last time we used a command
 		Cooldown.updateTimeStamp(msg);
 		commandHelp(msg);
 	}
 	
 	//Stupid joke command
-	if (msg.content === "!fish" && FEATURE_FISH) {
+	if (msg.content === "!fish" && FEATURE_FISH && !Cooldown.checkCooldown(msg)) {
 		Cooldown.updateTimeStamp(msg);
 		commandFish(msg);
 	}
 	
 	//Randomly choose a user
-	if (msg.content === "!roulette" && FEATURE_ROULETTE) {
+	if (msg.content === "!roulette" && FEATURE_ROULETTE && !Cooldown.checkCooldown(msg)) {
 		Cooldown.updateTimeStamp(msg);
 		commandRoulette(msg);
 	}
 	
 	//Shitposting from reddit's JSON fetch
-	if (msg.content === "!shitpost" && FEATURE_SHITPOST)
+	if (msg.content === "!shitpost" && FEATURE_SHITPOST && !Cooldown.checkCooldown(msg))
 	{
 		ShitPost.fetchShitPost(function (error,data) {
 			if (error == null) {
@@ -179,13 +172,13 @@ bot.on("message", function (msg) {
 	*/
 		
 	//if message is "!ID"
-	if (msg.content === "!ID" && FEATURE_ID) {
+	if (msg.content === "!ID" && FEATURE_ID && !Cooldown.checkCooldown(msg)) {
 		Cooldown.updateTimeStamp(msg);
 		commandID(msg);
 	}
 	
 	//if message is !ConfigTest, test variables in config.json and report errors.
-	if (msg.content === "!configtest" && FEATURE_CONFIGTEST) {
+	if (msg.content === "!configtest" && FEATURE_CONFIGTEST && !Cooldown.checkCooldown(msg)) {
 		ConfigTest.runConfigTest(bot,msg, function (error,data) {
 			Cooldown.updateTimeStamp(msg);
 			if (error) {
