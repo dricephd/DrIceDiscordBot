@@ -142,17 +142,20 @@ bot.on("message", function (msg) {
 	}
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP) {
-		commandHelp(msg);
+		//Update last time we used a command
 		Cooldown.updateTimeStamp(msg);
+		commandHelp(msg);
 	}
 	
 	//Stupid joke command
 	if (msg.content === "!fish" && FEATURE_FISH) {
+		Cooldown.updateTimeStamp(msg);
 		commandFish(msg);
 	}
 	
 	//Randomly choose a user
 	if (msg.content === "!roulette" && FEATURE_ROULETTE) {
+		Cooldown.updateTimeStamp(msg);
 		commandRoulette(msg);
 	}
 	
@@ -161,6 +164,7 @@ bot.on("message", function (msg) {
 	{
 		ShitPost.fetchShitPost(function (error,data) {
 			if (error == null) {
+				Cooldown.updateTimeStamp(msg);
 				messageResponse=data;
 				bot.sendMessage(msg.channel,data);
 			}
@@ -174,12 +178,14 @@ bot.on("message", function (msg) {
 		
 	//if message is "!ID"
 	if (msg.content === "!ID" && FEATURE_ID) {
+		Cooldown.updateTimeStamp(msg);
 		commandID(msg);
 	}
 	
 	//if message is !ConfigTest, test variables in config.json and report errors.
 	if (msg.content === "!configtest" && FEATURE_CONFIGTEST) {
 		ConfigTest.runConfigTest(bot,msg, function (error,data) {
+			Cooldown.updateTimeStamp(msg);
 			if (error) {
 				messageResponse=error;
 			}
