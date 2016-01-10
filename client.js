@@ -135,7 +135,7 @@ bot.on("message", function (msg) {
 	//Check if user is violating a command cooldown
 	//This will need to be moved
 	if (FEATURE_COOLDOWN) {
-		//If we're on cooldown.
+		//If we're on cooldown stop early
 		if (Cooldown.checkCooldown(msg)) {
 			return;
 		}
