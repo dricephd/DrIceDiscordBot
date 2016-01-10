@@ -1,10 +1,10 @@
 /*
 	This is DrIceBot, mostly a ping-pong bot that responds to commands.
 	Currently it is best configured when only running on one server due to the way config.json is utilized.
-	VERSION: 0.4.1
+	VERSION: DEV-0.5.0
 */
 
-const VERSION = "0.4.1";
+const VERSION = "DEV-0.5.0";
 
 // Load JSON Files
 var AuthDetails = require("./config/auth.json");
@@ -18,12 +18,17 @@ const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
 const FEATURE_HELP = ConfigDetails.featureStatus.help;
 const FEATURE_ID = ConfigDetails.featureStatus.ID;
 const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
+const FEATURE_COOLDOWN = ConfigDetails.featureStatus.cooldown;
+
+//Set Non-Feature Constants
+const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
 
 //Load Dependencies
 var Discord = require("discord.js");
 if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
 if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
 if (FEATURE_FISH) var fs = require('fs'); //Used for File Input Output
+if (FEATURE_COOLDOWN) var Cooldown = require("./lib/cooldown.js");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
@@ -34,7 +39,6 @@ console.log = function(data) {
 	var timestamp = '[' + Date.now() + '] ';
     this.logCopy(timestamp, data);
 };
-
 
 //Send enabled help commands to requester
 commandHelp = function(msg) {
@@ -97,8 +101,15 @@ commandID = function(msg) {
 	console.log("User ID: " + msg.author);
 }
 
+/*
+	Bot Events Handling
+*/
+
 //when the bot is ready
 bot.on("ready", function () {
+	//coodlown.js object setup
+	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
+		
 	console.log("Running Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
 });
@@ -121,27 +132,34 @@ bot.on("message", function (msg) {
 		* !roulette
 		* !shitpost
 	*/
-	//#TODO: Revamp so all of these return to messageResponse variable.
+	//If it detects its own message skip
+	if (msg.author.id == bot.user.id) return;
+	
 	//Sends PM to user of all relevant commands
-	if (msg.content === "!help" && FEATURE_HELP) {
+	if (msg.content === "!help" && FEATURE_HELP && !Cooldown.checkCooldown(msg)) {
+		//Update last time we used a command
+		Cooldown.updateTimeStamp(msg);
 		commandHelp(msg);
 	}
 	
 	//Stupid joke command
-	if (msg.content === "!fish" && FEATURE_FISH) {
+	if (msg.content === "!fish" && FEATURE_FISH && !Cooldown.checkCooldown(msg)) {
+		Cooldown.updateTimeStamp(msg);
 		commandFish(msg);
 	}
 	
 	//Randomly choose a user
-	if (msg.content === "!roulette" && FEATURE_ROULETTE) {
+	if (msg.content === "!roulette" && FEATURE_ROULETTE && !Cooldown.checkCooldown(msg)) {
+		Cooldown.updateTimeStamp(msg);
 		commandRoulette(msg);
 	}
 	
 	//Shitposting from reddit's JSON fetch
-	if (msg.content === "!shitpost" && FEATURE_SHITPOST)
+	if (msg.content === "!shitpost" && FEATURE_SHITPOST && !Cooldown.checkCooldown(msg))
 	{
 		ShitPost.fetchShitPost(function (error,data) {
 			if (error == null) {
+				Cooldown.updateTimeStamp(msg);
 				messageResponse=data;
 				bot.sendMessage(msg.channel,data);
 			}
@@ -154,13 +172,15 @@ bot.on("message", function (msg) {
 	*/
 		
 	//if message is "!ID"
-	if (msg.content === "!ID" && FEATURE_ID) {
+	if (msg.content === "!ID" && FEATURE_ID && !Cooldown.checkCooldown(msg)) {
+		Cooldown.updateTimeStamp(msg);
 		commandID(msg);
 	}
 	
 	//if message is !ConfigTest, test variables in config.json and report errors.
-	if (msg.content === "!configtest" && FEATURE_CONFIGTEST) {
+	if (msg.content === "!configtest" && FEATURE_CONFIGTEST && !Cooldown.checkCooldown(msg)) {
 		ConfigTest.runConfigTest(bot,msg, function (error,data) {
+			Cooldown.updateTimeStamp(msg);
 			if (error) {
 				messageResponse=error;
 			}
@@ -199,7 +219,14 @@ bot.on("presence", function (usr, status, gID) {
 	}
 });
 
-//Finally, let the bot login.
-bot.login(AuthDetails.email, AuthDetails.password, function(error, sentMsg) {
-	if (error != null) console.log("Login Errors: " + error);
-});
+//Setup called when bot first created.
+function botInitialization() {
+	//Let the bot login.
+	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
+		if (error) {
+			console.log("Login Errors: " + error);
+		}
+	});
+}
+
+botInitialization();
