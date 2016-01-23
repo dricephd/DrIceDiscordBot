@@ -11,6 +11,6 @@
 		"configTest" : true,
 		"shitpost" : true,
 		"cooldown" : true,
-		"reconnect" : true,
+		"reconnect" : true
 	}
 }
