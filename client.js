@@ -180,6 +180,9 @@ bot.on("message", function (msg) {
 				messageResponse=data;
 				bot.sendMessage(msg.channel,data);
 			}
+			if (error) {
+				console.log(error);
+			}
 		});
 	}
 	
