@@ -1,6 +1,7 @@
 //Run tests
 var Discord = require("discord.js");
 var fs = require('fs');
+var Moment = require('moment');
 
 var bot = new Discord.Client();
 //Hold our test Server/Channel Objects
