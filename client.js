@@ -26,6 +26,7 @@ const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
 
 //Load Dependencies
 var Discord = require("discord.js");
+var Moment = require('moment');
 if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
 if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
 if (FEATURE_FISH) var fs = require('fs'); //Used for File Input Output
@@ -40,7 +41,7 @@ var loginTimeDelay = 0;
 //Setup console log function
 console.logCopy = console.log.bind(console);
 console.log = function(data) {
-	var timestamp = '[' + Date.now() + '] ';
+	var timestamp = '[' + Moment().format("MM/DDD/YYYY HH:mm:ss") + '] ';
     this.logCopy(timestamp, data);
 };
 
