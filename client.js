@@ -19,6 +19,7 @@ const FEATURE_HELP = ConfigDetails.featureStatus.help;
 const FEATURE_ID = ConfigDetails.featureStatus.ID;
 const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
 const FEATURE_COOLDOWN = ConfigDetails.featureStatus.cooldown;
+const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
 
 //Set Non-Feature Constants
 const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
@@ -117,15 +118,6 @@ bot.on("ready", function () {
 		
 	console.log("Running Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
-});
-
-//when the bot disconnects
-bot.on("disconnected", function () {
-	//alert the console
-	console.log("Disconnected!");
-
-	//exit node.js with an error
-	process.exit(1);
 });
 
 //when the bot receives a message
@@ -233,5 +225,14 @@ function botInitialization() {
 		}
 	});
 }
+
+//when the bot disconnects
+bot.on("disconnected", function () {
+	//alert the console
+	console.log("Disconnected!");
+
+	//exit node.js with an error
+	process.exit(1);
+});
 
 botInitialization();

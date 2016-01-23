@@ -10,6 +10,7 @@
 		"ID" : true,
 		"configTest" : true,
 		"shitpost" : true,
-		"cooldown" : true
+		"cooldown" : true,
+		"reconnect" : true,
 	}
 }
