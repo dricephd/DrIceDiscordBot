@@ -20,6 +20,7 @@ const FEATURE_ID = ConfigDetails.featureStatus.ID;
 const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
 const FEATURE_COOLDOWN = ConfigDetails.featureStatus.cooldown;
 const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
+const FEATURE_GETLOG = ConfigDetails.featureStatus.getlog;
 
 //Set Non-Feature Constants
 const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
@@ -27,9 +28,9 @@ const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
 //Load Dependencies
 var Discord = require("discord.js");
 var Moment = require('moment');
+var fs = require('fs'); //Used for File Input Output
 if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
 if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
-if (FEATURE_FISH) var fs = require('fs'); //Used for File Input Output
 if (FEATURE_COOLDOWN) var Cooldown = require("./lib/cooldown.js");
 
 //Spawn globally required classes
@@ -37,11 +38,14 @@ var bot = new Discord.Client();
 
 //Global Variables
 var loginTimeDelay = 0;
+var log_filename = "./logs/" + Moment().format("MM-DDD-YY HH-mm") + ".log";
+var log_file = fs.createWriteStream(log_filename, {flags : 'w'});
 
 //Setup console log function
 console.logCopy = console.log.bind(console);
 console.log = function(data) {
 	var timestamp = '[' + Moment().format("MM/DDD/YYYY HH:mm:ss") + '] ';
+	log_file.write(timestamp + data + '\n');
     this.logCopy(timestamp, data);
 };
 
@@ -53,18 +57,23 @@ commandHelp = function(msg) {
 	msgResponse += "**__Commands for DIDBC bot Ver. " + VERSION + "__**\n";
 	msgResponse += "!help - You're already doing it!\n";
 	
-	//If the function is enabled send the command
+	//User Functions
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
 	if (FEATURE_ROULETTE) msgResponse += "!roulette - Choose an active user in the channel at random.\n";
 	if (FEATURE_SHITPOST) msgResponse += "!shitpost - Post a shitpost from one of several subreddits.\n";
-	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
-	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
 	
 	//Show any enabled features that don't have a command
 	msgResponse += "\n**__Enabled Features__**\n";
 	if (FEATURE_STATUSNOTIFY) msgResponse += "StatusNotify - Places alert in <#" + ConfigDetails.statusLogChannel + "> channel when a user changes status.\n";
 	if (FEATURE_COOLDOWN) msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n";
 	if (FEATURE_RECONNECT) msgResponse += "Reconnect - Bot will attempt to reconnect if taken offline unexpectedly.\n";
+	
+	//Functions for Debugging
+	msgResponse+= "\n**__Debug Commands__**\n";
+	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
+	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
+	if (FEATURE_GETLOG) msgResponse += "!getlog - Bot will send you the log\n";
+	
 	bot.sendMessage(msg.sender, msgResponse);
 };
 
@@ -120,6 +129,9 @@ commandID = function(msg) {
 bot.on("ready", function () {
 	//coodlown.js object setup
 	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
+	if (!fs.existsSync("./logs")) {
+		fs.mkdirSync("./logs");
+	}
 		
 	console.log("Bot Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
@@ -192,6 +204,19 @@ bot.on("message", function (msg) {
 			}
 			console.log(messageResponse);
 			bot.sendMessage(msg.channel,messageResponse);
+		});
+	}
+	
+	if (msg.content ==="!getlog" && FEATURE_GETLOG && !Cooldown.checkCooldown(msg)) {
+		bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
+			if (error) {
+				bot.sendMessage(msg.author,error);
+				console.log(error);
+			}
+			if (!error) {
+				console.log("Logs sent to " + msg.author);
+			}
+			
 		});
 	}
 	
