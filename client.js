@@ -36,6 +36,11 @@ if (FEATURE_COOLDOWN) var Cooldown = require("./lib/cooldown.js");
 //Spawn globally required classes
 var bot = new Discord.Client();
 
+//Setup any necessary folders
+if (!fs.existsSync("./logs")) {
+		fs.mkdirSync("./logs");
+}
+
 //Global Variables
 var loginTimeDelay = 0;
 var log_filename = "./logs/" + Moment().format("MM-DDD-YY HH-mm") + ".log";
@@ -129,9 +134,6 @@ commandID = function(msg) {
 bot.on("ready", function () {
 	//coodlown.js object setup
 	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
-	if (!fs.existsSync("./logs")) {
-		fs.mkdirSync("./logs");
-	}
 		
 	console.log("Bot Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
