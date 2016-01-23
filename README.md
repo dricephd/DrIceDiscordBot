@@ -10,6 +10,8 @@ Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's prim
 - !roulette to select a user at random that is online
 - !shitpost command to place shitpost from certain subreddits
 - Config.json controls what functions are enabled in the bot, by default it is currently everything
+- Cooldown to keep people from spamming commands
+- Auto-reconnect for when your bot gets dropped and you aren't around to fix it
 
 ##Planned Features for 1.0.0##
 [Everything Above v1.0.0 in PT] (https://www.pivotaltracker.com/n/projects/1505644)
