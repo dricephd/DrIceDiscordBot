@@ -63,7 +63,8 @@ commandHelp = function(msg) {
 	//Show any enabled features that don't have a command
 	msgResponse += "\n**__Enabled Features__**\n";
 	if (FEATURE_STATUSNOTIFY) msgResponse += "StatusNotify - Places alert in <#" + ConfigDetails.statusLogChannel + "> channel when a user changes status.\n";
-	if (FEATURE_COOLDOWN) msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n"
+	if (FEATURE_COOLDOWN) msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n";
+	if (FEATURE_RECONNECT) msgResponse += "Reconnect - Bot will attempt to reconnect if taken offline unexpectedly.\n";
 	bot.sendMessage(msg.sender, msgResponse);
 };
 
