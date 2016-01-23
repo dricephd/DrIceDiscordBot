@@ -121,7 +121,7 @@ bot.on("ready", function () {
 	//coodlown.js object setup
 	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
 		
-	console.log("Running Version " + VERSION);
+	console.log("Bot Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
 	loginTimeDelay=0; //Reset login timeout
 });
@@ -224,6 +224,11 @@ bot.on("presence", function (usr, status, gID) {
 
 //Setup called when bot first created.
 function botInitialization() {
+	//Check config.json VER against our scripts
+	if (ConfigDetails.version != VERSION) {
+		console.log("WARNING : Config.json and script version do not match! Check config.json.example for any missing values!")
+		console.log("Config.json Version " + ConfigDetails.version);
+	}
 	//Let the bot login.
 	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
 		//this callback seems to be VERY unreliable, DONT USE
