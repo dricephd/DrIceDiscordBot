@@ -51,9 +51,14 @@ commandHelp = function(msg) {
 	//If the function is enabled send the command
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
 	if (FEATURE_ROULETTE) msgResponse += "!roulette - Choose an active user in the channel at random.\n";
-	if (FEATURE_SHITPOST) msgResponse += "!shitpost - Post a shitpost from one of several subreddits\n";
+	if (FEATURE_SHITPOST) msgResponse += "!shitpost - Post a shitpost from one of several subreddits.\n";
 	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
 	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
+	
+	//Show any enabled features that don't have a command
+	msgResponse += "\n**__Enabled Features__**\n";
+	if (FEATURE_STATUSNOTIFY) msgResponse += "StatusNotify - Places alert in <#" + ConfigDetails.statusLogChannel + "> channel when a user changes status.\n";
+	if (FEATURE_COOLDOWN) msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n"
 	bot.sendMessage(msg.sender, msgResponse);
 };
 
