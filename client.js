@@ -29,6 +29,7 @@ const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
 var Discord = require("discord.js");
 var Moment = require('moment');
 var fs = require('fs'); //Used for File Input Output
+var PingPong = require("./lib/pingpong.js");
 if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
 if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
 if (FEATURE_COOLDOWN) var Cooldown = require("./lib/cooldown.js");
