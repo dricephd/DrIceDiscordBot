@@ -34,6 +34,9 @@ if (FEATURE_COOLDOWN) var Cooldown = require("./lib/cooldown.js");
 //Spawn globally required classes
 var bot = new Discord.Client();
 
+//Global Variables
+var loginTimeDelay = 0;
+
 //Setup console log function
 console.logCopy = console.log.bind(console);
 console.log = function(data) {
@@ -118,6 +121,7 @@ bot.on("ready", function () {
 		
 	console.log("Running Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
+	loginTimeDelay=0; //Reset login timeout
 });
 
 //when the bot receives a message
@@ -220,6 +224,7 @@ bot.on("presence", function (usr, status, gID) {
 function botInitialization() {
 	//Let the bot login.
 	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
+		//this callback seems to be VERY unreliable, DONT USE
 		if (error) {
 			console.log("Login Errors: " + error);
 		}
@@ -230,9 +235,18 @@ function botInitialization() {
 bot.on("disconnected", function () {
 	//alert the console
 	console.log("Disconnected!");
-
-	//exit node.js with an error
-	process.exit(1);
+	if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
+	
+	if (FEATURE_RECONNECT) {
+		//Wait X seconds before reconnecting
+		console.log("Attempting login in " + loginTimeDelay/1000 + " seconds...");
+		setTimeout(botInitialization,loginTimeDelay);
+	}
+	if (!FEATURE_RECONNECT) {
+		//If we don't want to reconnect just exit
+		process.exit(1);
+	}
+	
 });
 
 botInitialization();
