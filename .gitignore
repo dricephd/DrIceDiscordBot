@@ -34,4 +34,4 @@ WinNPMTest.bat
 logs
 
 # Ignore databases
-*.db
+*.sqlite3

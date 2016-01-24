@@ -135,7 +135,7 @@ commandID = function(msg) {
 bot.on("ready", function () {
 	//coodlown.js object setup
 	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
-		
+	PingPong.initializeDB();
 	console.log("Bot Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
 	loginTimeDelay=0; //Reset login timeout
