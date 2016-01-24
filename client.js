@@ -18,7 +18,6 @@ const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
 const FEATURE_HELP = ConfigDetails.featureStatus.help;
 const FEATURE_ID = ConfigDetails.featureStatus.ID;
 const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
-const FEATURE_COOLDOWN = ConfigDetails.featureStatus.cooldown;
 const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
 const FEATURE_GETLOG = ConfigDetails.featureStatus.getlog;
 
@@ -32,20 +31,21 @@ var fs = require('fs'); //Used for File Input Output
 var PingPong = require("./lib/pingpong.js");
 if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
 if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
-if (FEATURE_COOLDOWN) var Cooldown = require("./lib/cooldown.js");
+var Cooldown = require("./lib/cooldown.js");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
 
 //Setup any necessary folders
 if (!fs.existsSync("./logs")) {
-		fs.mkdirSync("./logs");
+	fs.mkdirSync("./logs");
 }
 
 //Global Variables
 var loginTimeDelay = 0;
 var log_filename = "./logs/" + Moment().format("MM-DDD-YY HH-mm") + ".log";
 var log_file = fs.createWriteStream(log_filename, {flags : 'w'});
+var customCommands = {};
 
 //Setup console log function
 console.logCopy = console.log.bind(console);
@@ -71,7 +71,7 @@ commandHelp = function(msg) {
 	//Show any enabled features that don't have a command
 	msgResponse += "\n**__Enabled Features__**\n";
 	if (FEATURE_STATUSNOTIFY) msgResponse += "StatusNotify - Places alert in <#" + ConfigDetails.statusLogChannel + "> channel when a user changes status.\n";
-	if (FEATURE_COOLDOWN) msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n";
+	msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n";
 	if (FEATURE_RECONNECT) msgResponse += "Reconnect - Bot will attempt to reconnect if taken offline unexpectedly.\n";
 	
 	//Functions for Debugging
@@ -79,6 +79,13 @@ commandHelp = function(msg) {
 	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
 	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
 	if (FEATURE_GETLOG) msgResponse += "!getlog - Bot will send you the log\n";
+	
+	//Custom Commands
+	msgResponse += "\n**__Custom User Commands__**\n";
+	
+	for (var i in customCommands) {
+		msgResponse += customCommands[i]["command"] + "\n";
+	}
 	
 	bot.sendMessage(msg.sender, msgResponse);
 };
@@ -134,9 +141,10 @@ commandID = function(msg) {
 //when the bot is ready
 bot.on("ready", function () {
 	//coodlown.js object setup
-	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
-	//Open DB and pass bot by reference
-	PingPong.initializeDB(bot);
+	Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
+	
+	//Get Commands
+	customCommands = PingPong.getCommands();
 	
 	console.log("Bot Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
@@ -193,17 +201,31 @@ bot.on("message", function (msg) {
 		var response = msg.content.substring(msg.content.indexOf(' ')+1);
 		response = response.substring(response.indexOf(' ')+1);
 		
-		console.log(response);
-		
 		PingPong.insertCommand(command, response, function (error,data) {
-			if (!error) console.log("Successfully " + data);
+			if (!error) console.log(data);
 			if (error) console.log(error);
+			customCommands = PingPong.getCommands();
+			bot.sendMessage(msg.channel,data);
 		});
 	}
 	if (msg.content.indexOf("!delete") > -1 && !Cooldown.checkCooldown(msg))
 	{
 		var command = msg.content.split(' ')[1];
-		PingPong.deleteCommand(command);
+		PingPong.deleteCommand(command, function (error,data) {
+			if (!error) console.log(data);
+			if (error) console.log(error);
+			
+			customCommands = PingPong.getCommands();
+			bot.sendMessage(msg.channel,data);
+		});
+	}
+	
+	//Check for custom commands here
+	for (var i in customCommands) {
+		if (msg.content === customCommands[i]["command"] && !Cooldown.checkCooldown(msg)) {
+			bot.sendMessage(msg.channel,customCommands[i]["response"]);
+			break;
+		}
 	}
 	
 	/* Commands that are mainly for debugging purposes:
@@ -279,6 +301,9 @@ function botInitialization() {
 		console.log("WARNING : Config.json and script version do not match! Check config.json.example for any missing values!")
 		console.log("Config.json Version " + ConfigDetails.version);
 	}
+	
+	//Initialize DB
+	PingPong.initializeDB();
 	
 	//Let the bot login.
 	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
