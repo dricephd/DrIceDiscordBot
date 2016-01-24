@@ -135,7 +135,7 @@ commandID = function(msg) {
 bot.on("ready", function () {
 	//coodlown.js object setup
 	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
-	PingPong.initializeDB();
+	
 	console.log("Bot Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
 	loginTimeDelay=0; //Reset login timeout
@@ -149,6 +149,8 @@ bot.on("message", function (msg) {
 		* !fish
 		* !roulette
 		* !shitpost
+		* !add
+		* !remove
 	*/
 	//If it detects its own message skip
 	if (msg.author.id == bot.user.id) return;
@@ -181,6 +183,13 @@ bot.on("message", function (msg) {
 				messageResponse=data;
 				bot.sendMessage(msg.channel,data);
 			}
+		});
+	}
+	if (msg.content === "!add" && !Cooldown.checkCooldown(msg))
+	{
+		PingPong.insertCommand("!test", "Test!!!", function (error,data) {
+			if (!error) console.log("Successfully " + data);
+			if (error) console.log(error);
 		});
 	}
 	
@@ -257,6 +266,10 @@ function botInitialization() {
 		console.log("WARNING : Config.json and script version do not match! Check config.json.example for any missing values!")
 		console.log("Config.json Version " + ConfigDetails.version);
 	}
+	
+	//Open DB
+	PingPong.initializeDB();
+	
 	//Let the bot login.
 	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
 		//this callback seems to be VERY unreliable, DONT USE
@@ -279,6 +292,7 @@ bot.on("disconnected", function () {
 	}
 	if (!FEATURE_RECONNECT) {
 		//If we don't want to reconnect just exit
+		PingPong.closeDb();
 		process.exit(1);
 	}
 	
