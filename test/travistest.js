@@ -100,6 +100,22 @@ function testBotModules()
 	}
 	success("Cooldown");
 	
+	//PingPong Custom Commands Test
+	try {
+		PingPong = require("../lib/pingpong.js");
+		PingPong.initializeDB();
+		PingPong.insertCommand("!test","test",function(){});
+		PingPong.deleteCommand("!test",function(){});
+		var test = PingPong.getCommands();
+		PingPong.closeDb();
+	}
+	catch (error) {
+		failure ("PingPong: Module failed. " + error);
+		deleteServer();
+		throw error;
+	}
+	success("PingPong");
+	
 	
 	//Exit
 	success("Modules Loaded.")
