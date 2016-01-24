@@ -82,6 +82,8 @@ commandHelp = function(msg) {
 	
 	//Custom Commands
 	msgResponse += "\n**__Custom User Commands__**\n";
+	msgResponse += "!add [command] [response] - adds a custom command\n";
+	msgResponse += "!delete [command] [response] - delete a custom command\n";
 	
 	for (var i in customCommands) {
 		msgResponse += customCommands[i]["command"] + "\n";
@@ -209,6 +211,7 @@ bot.on("message", function (msg) {
 			if (error) console.log(error);
 			customCommands = PingPong.getCommands();
 			bot.sendMessage(msg.channel,data);
+			Cooldown.updateTimeStamp(msg);
 		});
 	}
 	if (msg.content.indexOf("!delete") > -1 && !Cooldown.checkCooldown(msg))
@@ -220,6 +223,7 @@ bot.on("message", function (msg) {
 			
 			customCommands = PingPong.getCommands();
 			bot.sendMessage(msg.channel,data);
+			Cooldown.updateTimeStamp(msg);
 		});
 	}
 	
@@ -227,7 +231,7 @@ bot.on("message", function (msg) {
 	for (var i in customCommands) {
 		if (msg.content === customCommands[i]["command"] && !Cooldown.checkCooldown(msg)) {
 			bot.sendMessage(msg.channel,customCommands[i]["response"]);
-			break;
+			Cooldown.updateTimeStamp(msg);
 		}
 	}
 	
