@@ -1,12 +1,17 @@
 {
+	"version" : "0.5.0",
 	"statusLogChannel" : "-1",
+	"cooldownTime" : "5",
 	"featureStatus": {
-		"fish" : "1",
-		"roulette" : "1",
-		"statusNotifier" : "0",
-		"help" : "1",
-		"ID" : "1",
-		"configTest" : "1",
-		"shitpost" : "1"
+		"fish" : true,
+		"roulette" : true,
+		"statusNotifier" : false,
+		"help" : true,
+		"ID" : true,
+		"configTest" : true,
+		"shitpost" : true,
+		"cooldown" : true,
+		"reconnect" : true,
+		"getlog" : true
 	}
 }

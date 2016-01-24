@@ -11,8 +11,10 @@
   "main": "client.js",
   "dependencies": {
     "discord.js": "5.2.0",
+    "moment": "2.11.1",
     "node.js": "0.0.0",
-    "request": "2.67.0"
+    "request": "2.67.0",
+    "sqlite3": "3.1.1"
   },
   "scripts": {
     "test": "node test/travistest.js"

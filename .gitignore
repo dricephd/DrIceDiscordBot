@@ -32,3 +32,6 @@ WinNPMTest.bat
 
 # Don't need logs folder
 logs
+
+# Ignore databases
+*.sqlite3
