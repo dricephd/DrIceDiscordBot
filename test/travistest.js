@@ -2,6 +2,7 @@
 var Discord = require("discord.js");
 var fs = require('fs');
 var Moment = require('moment');
+var sqlite3 = require('sqlite3').verbose();
 
 var bot = new Discord.Client();
 //Hold our test Server/Channel Objects
@@ -9,6 +10,12 @@ var testServer;
 var testTextChannel;
 var testVoiceChannel;
 var testMessage; //For functions where we need to pass messages.
+
+console.logCopy = console.log.bind(console);
+console.log = function(data) {
+	var timestamp = '[' + Moment().format("HH:mm:ss") + '] ';
+    this.logCopy(timestamp, data);
+};
 
 function success(msg) {
 	console.log("✓ ... " + msg);
