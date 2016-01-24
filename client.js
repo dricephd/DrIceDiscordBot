@@ -135,6 +135,8 @@ commandID = function(msg) {
 bot.on("ready", function () {
 	//coodlown.js object setup
 	if (FEATURE_COOLDOWN) Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
+	//Open DB and pass bot by reference
+	PingPong.initializeDB(bot);
 	
 	console.log("Bot Version " + VERSION);
 	console.log("Ready to begin! Serving in " + bot.channels.length + " channels");
@@ -185,12 +187,23 @@ bot.on("message", function (msg) {
 			}
 		});
 	}
-	if (msg.content === "!add" && !Cooldown.checkCooldown(msg))
+	if (msg.content.indexOf("!add") > -1 && !Cooldown.checkCooldown(msg))
 	{
-		PingPong.insertCommand("!test", "Test!!!", function (error,data) {
+		var command = msg.content.split(' ')[1];
+		var response = msg.content.substring(msg.content.indexOf(' ')+1);
+		response = response.substring(response.indexOf(' ')+1);
+		
+		console.log(response);
+		
+		PingPong.insertCommand(command, response, function (error,data) {
 			if (!error) console.log("Successfully " + data);
 			if (error) console.log(error);
 		});
+	}
+	if (msg.content.indexOf("!delete") > -1 && !Cooldown.checkCooldown(msg))
+	{
+		var command = msg.content.split(' ')[1];
+		PingPong.deleteCommand(command);
 	}
 	
 	/* Commands that are mainly for debugging purposes:
@@ -266,9 +279,6 @@ function botInitialization() {
 		console.log("WARNING : Config.json and script version do not match! Check config.json.example for any missing values!")
 		console.log("Config.json Version " + ConfigDetails.version);
 	}
-	
-	//Open DB
-	PingPong.initializeDB();
 	
 	//Let the bot login.
 	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
