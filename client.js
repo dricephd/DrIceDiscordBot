@@ -261,6 +261,7 @@ bot.on("message", function (msg) {
 		});
 	}
 	
+	//Fetches log and sends it over discord
 	if (msg.content ==="!getlog" && FEATURE_GETLOG && !Cooldown.checkCooldown(msg)) {
 		bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
 			if (error) {
@@ -272,6 +273,12 @@ bot.on("message", function (msg) {
 			}
 			
 		});
+	}
+	
+	//Restarts the bot
+	if (msg.content === "!restart") {
+		console.log(msg.author + msg.author.name + " has restarted the bot.");
+		bot.logout();
 	}
 	
 });
