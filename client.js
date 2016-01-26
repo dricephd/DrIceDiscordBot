@@ -277,7 +277,7 @@ bot.on("message", function (msg) {
 	
 	//Restarts the bot
 	if (msg.content === "!restart") {
-		console.log(msg.author + msg.author.name + " has restarted the bot.");
+		console.log(msg.author + msg.author.username + " has restarted the bot.");
 		bot.logout();
 	}
 	
@@ -332,7 +332,6 @@ function botInitialization() {
 bot.on("disconnected", function () {
 	//alert the console
 	console.log("Disconnected!");
-	if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	
 	//Close Db since we open it on each login...
 	PingPong.closeDb();
@@ -341,6 +340,7 @@ bot.on("disconnected", function () {
 		//Wait X seconds before reconnecting
 		console.log("Attempting login in " + loginTimeDelay/1000 + " seconds...");
 		setTimeout(botInitialization,loginTimeDelay);
+		if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	}
 	if (!FEATURE_RECONNECT) {
 		//If we don't want to reconnect just exit
