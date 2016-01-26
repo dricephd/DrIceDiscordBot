@@ -207,7 +207,7 @@ bot.on("message", function (msg) {
 		response = response.substring(response.indexOf(' ')+1);
 		
 		PingPong.insertCommand(command, response, function (error,data) {
-			if (!error) console.log(data);
+			if (!error) console.log(msg.author + msg.author.username + " " + data);
 			if (error) console.log(error);
 			customCommands = PingPong.getCommands();
 			bot.sendMessage(msg.channel,data);
@@ -218,7 +218,7 @@ bot.on("message", function (msg) {
 	{
 		var command = msg.content.split(' ')[1];
 		PingPong.deleteCommand(command, function (error,data) {
-			if (!error) console.log(data);
+			if (!error) console.log(msg.author + msg.author.username + " " + data);
 			if (error) console.log(error);
 			
 			customCommands = PingPong.getCommands();
