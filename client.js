@@ -281,6 +281,14 @@ bot.on("message", function (msg) {
 		bot.logout();
 	}
 	
+	//Shuts down the bot
+	if (msg.content === "!shutdown") {
+		bot.logout(function (error) {
+			console.log(msg.author + msg.author.username + " has shut down the bot.");
+			process.exit(1);
+		});
+	}
+	
 });
 
 //when the bot receives user status update
@@ -338,7 +346,7 @@ bot.on("disconnected", function () {
 	
 	if (FEATURE_RECONNECT) {
 		//Wait X seconds before reconnecting
-		console.log("Attempting login in " + loginTimeDelay/1000 + " seconds...");
+		console.log("Attempting login in " + loginTimeDelay/1000 + 5000 + " seconds...");
 		setTimeout(botInitialization,loginTimeDelay);
 		if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	}
