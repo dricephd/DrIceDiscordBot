@@ -327,6 +327,9 @@ bot.on("disconnected", function () {
 	console.log("Disconnected!");
 	if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	
+	//Close Db since we open it on each login...
+	PingPong.closeDb();
+	
 	if (FEATURE_RECONNECT) {
 		//Wait X seconds before reconnecting
 		console.log("Attempting login in " + loginTimeDelay/1000 + " seconds...");
@@ -334,7 +337,6 @@ bot.on("disconnected", function () {
 	}
 	if (!FEATURE_RECONNECT) {
 		//If we don't want to reconnect just exit
-		PingPong.closeDb();
 		process.exit(1);
 	}
 	
