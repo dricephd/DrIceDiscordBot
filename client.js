@@ -83,7 +83,7 @@ commandHelp = function(msg) {
 	//Custom Commands
 	msgResponse += "\n**__Custom User Commands__**\n";
 	msgResponse += "!add [command] [response] - adds a custom command\n";
-	msgResponse += "!delete [command] [response] - delete a custom command\n";
+	msgResponse += "!delete [command] - delete a custom command\n";
 	
 	for (var i in customCommands) {
 		msgResponse += customCommands[i]["command"] + "\n";
