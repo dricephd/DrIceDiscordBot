@@ -84,10 +84,7 @@ commandHelp = function(msg) {
 	msgResponse += "\n**__Custom User Commands__**\n";
 	msgResponse += "!add [command] [response] - adds a custom command\n";
 	msgResponse += "!delete [command] - delete a custom command\n";
-	
-	for (var i in customCommands) {
-		msgResponse += customCommands[i]["command"] + "\n";
-	}
+	msgResponse += "!list - list all custom commands\n";
 	
 	bot.sendMessage(msg.sender, msgResponse);
 };
@@ -225,6 +222,16 @@ bot.on("message", function (msg) {
 			bot.sendMessage(msg.channel,data);
 			Cooldown.updateTimeStamp(msg);
 		});
+	}
+	if (msg.content === "!list" && !Cooldown.checkCooldown(msg))
+	{
+		//Limit is 2000 characters... need to check.
+		messageResponse += "**__Registered Custom Commands__**\n";
+		for (var i in customCommands) {
+			messageResponse += customCommands[i]["command"] + " - " + customCommands[i]["response"].substring(0,20) + "...\n";
+		}
+		bot.sendMessage(msg.sender,messageResponse);
+		Cooldown.updateTimeStamp(msg);
 	}
 	
 	//Check for custom commands here
