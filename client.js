@@ -255,6 +255,8 @@ bot.on("message", function (msg) {
 			prepResponse = prepResponse.replace(/%name%/gi,msg.author.username);
 			prepResponse = prepResponse.replace(/%@name%/gi,msg.author);
 			prepResponse = prepResponse.replace(/%time%/gi, Moment());
+			prepResponse = prepResponse.replace(/%randomuser%/gi, bot.users[Math.floor(Math.random()*bot.users.length)].username);
+			prepResponse = prepResponse.replace(/%randomnum%/gi, Math.floor(Math.random()*100));
 			
 			bot.sendMessage(msg.channel,prepResponse);
 			Cooldown.updateTimeStamp(msg);
