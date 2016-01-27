@@ -251,7 +251,12 @@ bot.on("message", function (msg) {
 	//Check for custom commands here
 	for (var i in customCommands) {
 		if (msg.content === customCommands[i]["command"] && !Cooldown.checkCooldown(msg)) {
-			bot.sendMessage(msg.channel,customCommands[i]["response"]);
+			var prepResponse = customCommands[i]["response"];
+			prepResponse = prepResponse.replace(/%name%/gi,msg.author.username);
+			prepResponse = prepResponse.replace(/%@name%/gi,msg.author);
+			prepResponse = prepResponse.replace(/%time%/gi, Moment());
+			
+			bot.sendMessage(msg.channel,prepResponse);
 			Cooldown.updateTimeStamp(msg);
 		}
 	}
