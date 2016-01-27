@@ -155,7 +155,19 @@ bot.on("ready", function () {
 
 //when the bot receives a message
 bot.on("message", function (msg) {
+	//If it detects its own message skip
+	if (msg.author.id == bot.user.id) return;
+	
 	var messageResponse="";
+	var userPerms=msg.channel.server.detailsOfUser(msg.author).roles;
+	
+	//First check if they have the manageRoles role to know if they can debug
+	var debugRole=false;
+	
+	for (var perms in userPerms) {
+		if(userPerms[perms].hasPermission("manageRoles")) debugRole=true;
+	}
+	
 	/* Commands for primary use
 		* !help
 		* !fish
@@ -164,8 +176,6 @@ bot.on("message", function (msg) {
 		* !add
 		* !remove
 	*/
-	//If it detects its own message skip
-	if (msg.author.id == bot.user.id) return;
 	
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP && !Cooldown.checkCooldown(msg)) {
@@ -239,54 +249,58 @@ bot.on("message", function (msg) {
 		* !ID
 		* !ConfigTest
 	*/
-		
-	//if message is "!ID"
-	if (msg.content === "!ID" && FEATURE_ID && !Cooldown.checkCooldown(msg)) {
-		Cooldown.updateTimeStamp(msg);
-		commandID(msg);
-	}
 	
-	//if message is !ConfigTest, test variables in config.json and report errors.
-	if (msg.content === "!configtest" && FEATURE_CONFIGTEST && !Cooldown.checkCooldown(msg)) {
-		ConfigTest.runConfigTest(bot,msg, function (error,data) {
+	//We only want people with REALLY good server access using with these commands.
+	if (debugRole) {
+	
+		//if message is "!ID"
+		if (msg.content === "!ID" && FEATURE_ID && !Cooldown.checkCooldown(msg)) {
 			Cooldown.updateTimeStamp(msg);
-			if (error) {
-				messageResponse=error;
-			}
-			if(!error) {
-				messageResponse=data;
-			}
-			console.log(messageResponse);
-			bot.sendMessage(msg.channel,messageResponse);
-		});
-	}
-	
-	//Fetches log and sends it over discord
-	if (msg.content ==="!getlog" && FEATURE_GETLOG && !Cooldown.checkCooldown(msg)) {
-		bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
-			if (error) {
-				bot.sendMessage(msg.author,error);
-				console.log(error);
-			}
-			if (!error) {
-				console.log("Logs sent to " + msg.author);
-			}
-			
-		});
-	}
-	
-	//Restarts the bot
-	if (msg.content === "!restart") {
-		console.log(msg.author + msg.author.username + " has restarted the bot.");
-		bot.logout();
-	}
-	
-	//Shuts down the bot
-	if (msg.content === "!shutdown") {
-		bot.logout(function (error) {
-			console.log(msg.author + msg.author.username + " has shut down the bot.");
-			process.exit(1);
-		});
+			commandID(msg);
+		}
+		
+		//if message is !ConfigTest, test variables in config.json and report errors.
+		if (msg.content === "!configtest" && FEATURE_CONFIGTEST && !Cooldown.checkCooldown(msg)) {
+			ConfigTest.runConfigTest(bot,msg, function (error,data) {
+				Cooldown.updateTimeStamp(msg);
+				if (error) {
+					messageResponse=error;
+				}
+				if(!error) {
+					messageResponse=data;
+				}
+				console.log(messageResponse);
+				bot.sendMessage(msg.channel,messageResponse);
+			});
+		}
+		
+		//Fetches log and sends it over discord
+		if (msg.content ==="!getlog" && FEATURE_GETLOG && !Cooldown.checkCooldown(msg)) {
+			bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
+				if (error) {
+					bot.sendMessage(msg.author,error);
+					console.log(error);
+				}
+				if (!error) {
+					console.log("Logs sent to " + msg.author);
+				}
+				
+			});
+		}
+		
+		//Restarts the bot
+		if (msg.content === "!restart") {
+			console.log(msg.author + msg.author.username + " has restarted the bot.");
+			//bot.logout();
+		}
+		
+		//Shuts down the bot
+		if (msg.content === "!shutdown") {
+			bot.logout(function (error) {
+				console.log(msg.author + msg.author.username + " has shut down the bot.");
+				process.exit(1);
+			});
+		}
 	}
 	
 });
