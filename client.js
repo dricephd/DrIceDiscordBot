@@ -308,6 +308,21 @@ bot.on("presence", function (usr, status, gID) {
 	}
 });
 
+//Detects when user joins any channel
+bot.on("voiceJoin", function (usr,vchannel) {
+	console.log(usr + vchannel);
+	bot.sendMessage(ConfigDetails.statusLogChannel, "▶ " + Moment().format("h:mm a ") + usr.username + " joined " + vchannel.name);
+	
+});
+
+//Detects when user disconnects from voice completely.
+bot.on("voiceLeave", function (usr,vchannel) {
+	//◀
+	console.log(usr + vchannel);
+	bot.sendMessage(ConfigDetails.statusLogChannel, "🔽 " + Moment().format("h:mm a ") + usr.username + " disconnected from voice.");
+	
+});
+
 //Setup called when bot first created.
 function botInitialization() {
 	//Check config.json VER against our scripts
