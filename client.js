@@ -85,6 +85,7 @@ commandHelp = function(msg,debugPerm) {
 	//Custom Commands
 	msgResponse += "\n**__Custom User Commands__**\n";
 	msgResponse += "!add [command] [response] - adds a custom command\n";
+	msgResponse += "	* Response Variables: `%randomnum% %randomuser% %time% %@name% %name%`\n";
 	msgResponse += "!delete [command] - delete a custom command\n";
 	msgResponse += "!list - list all custom commands\n";
 	
