@@ -16,8 +16,6 @@ const FEATURE_ROULETTE = ConfigDetails.featureStatus.roulette;
 const FEATURE_SHITPOST = ConfigDetails.featureStatus.shitpost;
 const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
 const FEATURE_HELP = ConfigDetails.featureStatus.help;
-const FEATURE_ID = ConfigDetails.featureStatus.ID;
-const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
 const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
 const FEATURE_GETLOG = ConfigDetails.featureStatus.getlog;
 
@@ -29,8 +27,8 @@ var Discord = require("discord.js");
 var Moment = require('moment');
 var fs = require('fs'); //Used for File Input Output
 var PingPong = require("./lib/pingpong.js");
-if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
-if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
+var ShitPost = require("./lib/shitpost.js");
+var ConfigTest = require("./lib/configtest.js");
 var Cooldown = require("./lib/cooldown.js");
 
 //Spawn globally required classes
@@ -56,7 +54,7 @@ console.log = function(data) {
 };
 
 //Send enabled help commands to requester
-commandHelp = function(msg) {
+commandHelp = function(msg,debugPerm) {
 	//Buffer all of our response then send it so we don't get weird ordering
 	var msgResponse="";
 	//DM The commands to the caller
@@ -74,12 +72,16 @@ commandHelp = function(msg) {
 	msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n";
 	if (FEATURE_RECONNECT) msgResponse += "Reconnect - Bot will attempt to reconnect if taken offline unexpectedly.\n";
 	
-	//Functions for Debugging
-	msgResponse+= "\n**__Debug Commands__**\n";
-	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
-	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
-	if (FEATURE_GETLOG) msgResponse += "!getlog - Bot will send you the log\n";
-	
+	if (debugPerm)
+	{
+		//Functions for Debugging
+		msgResponse+= "\n**__Debug Commands__**\n";
+		msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
+		msgResponse += "!configtest - Test the settings in config.json\n";
+		msgResponse += "!getlog - Bot will send you the log\n";
+		msgResponse += "!shutdown - Shuts down bot\n";
+		msgResponse += "!restart - Restarts the bot\n";
+	}
 	//Custom Commands
 	msgResponse += "\n**__Custom User Commands__**\n";
 	msgResponse += "!add [command] [response] - adds a custom command\n";
@@ -157,6 +159,8 @@ bot.on("ready", function () {
 bot.on("message", function (msg) {
 	//If it detects its own message skip
 	if (msg.author.id == bot.user.id) return;
+	//If it's a PM cancel out
+	if (msg.channel.isPrivate) return;
 	
 	var messageResponse="";
 	var userPerms=msg.channel.server.detailsOfUser(msg.author).roles;
@@ -181,7 +185,7 @@ bot.on("message", function (msg) {
 	if (msg.content === "!help" && FEATURE_HELP && !Cooldown.checkCooldown(msg)) {
 		//Update last time we used a command
 		Cooldown.updateTimeStamp(msg);
-		commandHelp(msg);
+		commandHelp(msg,debugRole);
 	}
 	
 	//Stupid joke command
@@ -254,13 +258,13 @@ bot.on("message", function (msg) {
 	if (debugRole) {
 	
 		//if message is "!ID"
-		if (msg.content === "!ID" && FEATURE_ID && !Cooldown.checkCooldown(msg)) {
+		if (msg.content === "!ID") {
 			Cooldown.updateTimeStamp(msg);
 			commandID(msg);
 		}
 		
 		//if message is !ConfigTest, test variables in config.json and report errors.
-		if (msg.content === "!configtest" && FEATURE_CONFIGTEST && !Cooldown.checkCooldown(msg)) {
+		if (msg.content === "!configtest") {
 			ConfigTest.runConfigTest(bot,msg, function (error,data) {
 				Cooldown.updateTimeStamp(msg);
 				if (error) {
@@ -275,7 +279,7 @@ bot.on("message", function (msg) {
 		}
 		
 		//Fetches log and sends it over discord
-		if (msg.content ==="!getlog" && FEATURE_GETLOG && !Cooldown.checkCooldown(msg)) {
+		if (msg.content ==="!getlog") {
 			bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
 				if (error) {
 					bot.sendMessage(msg.author,error);
@@ -291,7 +295,7 @@ bot.on("message", function (msg) {
 		//Restarts the bot
 		if (msg.content === "!restart") {
 			console.log(msg.author + msg.author.username + " has restarted the bot.");
-			//bot.logout();
+			bot.logout();
 		}
 		
 		//Shuts down the bot
