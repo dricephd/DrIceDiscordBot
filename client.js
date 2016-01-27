@@ -16,8 +16,6 @@ const FEATURE_ROULETTE = ConfigDetails.featureStatus.roulette;
 const FEATURE_SHITPOST = ConfigDetails.featureStatus.shitpost;
 const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
 const FEATURE_HELP = ConfigDetails.featureStatus.help;
-const FEATURE_ID = ConfigDetails.featureStatus.ID;
-const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
 const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
 const FEATURE_GETLOG = ConfigDetails.featureStatus.getlog;
 
@@ -29,8 +27,8 @@ var Discord = require("discord.js");
 var Moment = require('moment');
 var fs = require('fs'); //Used for File Input Output
 var PingPong = require("./lib/pingpong.js");
-if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
-if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
+var ShitPost = require("./lib/shitpost.js");
+var ConfigTest = require("./lib/configtest.js");
 var Cooldown = require("./lib/cooldown.js");
 
 //Spawn globally required classes
@@ -56,7 +54,7 @@ console.log = function(data) {
 };
 
 //Send enabled help commands to requester
-commandHelp = function(msg) {
+commandHelp = function(msg,debugPerm) {
 	//Buffer all of our response then send it so we don't get weird ordering
 	var msgResponse="";
 	//DM The commands to the caller
@@ -74,12 +72,16 @@ commandHelp = function(msg) {
 	msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n";
 	if (FEATURE_RECONNECT) msgResponse += "Reconnect - Bot will attempt to reconnect if taken offline unexpectedly.\n";
 	
-	//Functions for Debugging
-	msgResponse+= "\n**__Debug Commands__**\n";
-	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
-	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
-	if (FEATURE_GETLOG) msgResponse += "!getlog - Bot will send you the log\n";
-	
+	if (debugPerm)
+	{
+		//Functions for Debugging
+		msgResponse+= "\n**__Debug Commands__**\n";
+		msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
+		msgResponse += "!configtest - Test the settings in config.json\n";
+		msgResponse += "!getlog - Bot will send you the log\n";
+		msgResponse += "!shutdown - Shuts down bot\n";
+		msgResponse += "!restart - Restarts the bot\n";
+	}
 	//Custom Commands
 	msgResponse += "\n**__Custom User Commands__**\n";
 	msgResponse += "!add [command] [response] - adds a custom command\n";
@@ -152,7 +154,21 @@ bot.on("ready", function () {
 
 //when the bot receives a message
 bot.on("message", function (msg) {
+	//If it detects its own message skip
+	if (msg.author.id == bot.user.id) return;
+	//If it's a PM cancel out
+	if (msg.channel.isPrivate) return;
+	
 	var messageResponse="";
+	var userPerms=msg.channel.server.detailsOfUser(msg.author).roles;
+	
+	//First check if they have the manageRoles role to know if they can debug
+	var debugRole=false;
+	
+	for (var perms in userPerms) {
+		if(userPerms[perms].hasPermission("manageRoles")) debugRole=true;
+	}
+	
 	/* Commands for primary use
 		* !help
 		* !fish
@@ -161,14 +177,12 @@ bot.on("message", function (msg) {
 		* !add
 		* !remove
 	*/
-	//If it detects its own message skip
-	if (msg.author.id == bot.user.id) return;
 	
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP && !Cooldown.checkCooldown(msg)) {
 		//Update last time we used a command
 		Cooldown.updateTimeStamp(msg);
-		commandHelp(msg);
+		commandHelp(msg,debugRole);
 	}
 	
 	//Stupid joke command
@@ -204,7 +218,7 @@ bot.on("message", function (msg) {
 		response = response.substring(response.indexOf(' ')+1);
 		
 		PingPong.insertCommand(command, response, function (error,data) {
-			if (!error) console.log(data);
+			if (!error) console.log(msg.author + msg.author.username + " " + data);
 			if (error) console.log(error);
 			customCommands = PingPong.getCommands();
 			bot.sendMessage(msg.channel,data);
@@ -215,7 +229,7 @@ bot.on("message", function (msg) {
 	{
 		var command = msg.content.split(' ')[1];
 		PingPong.deleteCommand(command, function (error,data) {
-			if (!error) console.log(data);
+			if (!error) console.log(msg.author + msg.author.username + " " + data);
 			if (error) console.log(error);
 			
 			customCommands = PingPong.getCommands();
@@ -246,39 +260,58 @@ bot.on("message", function (msg) {
 		* !ID
 		* !ConfigTest
 	*/
-		
-	//if message is "!ID"
-	if (msg.content === "!ID" && FEATURE_ID && !Cooldown.checkCooldown(msg)) {
-		Cooldown.updateTimeStamp(msg);
-		commandID(msg);
-	}
 	
-	//if message is !ConfigTest, test variables in config.json and report errors.
-	if (msg.content === "!configtest" && FEATURE_CONFIGTEST && !Cooldown.checkCooldown(msg)) {
-		ConfigTest.runConfigTest(bot,msg, function (error,data) {
+	//We only want people with REALLY good server access using with these commands.
+	if (debugRole) {
+	
+		//if message is "!ID"
+		if (msg.content === "!ID") {
 			Cooldown.updateTimeStamp(msg);
-			if (error) {
-				messageResponse=error;
-			}
-			if(!error) {
-				messageResponse=data;
-			}
-			console.log(messageResponse);
-			bot.sendMessage(msg.channel,messageResponse);
-		});
-	}
-	
-	if (msg.content ==="!getlog" && FEATURE_GETLOG && !Cooldown.checkCooldown(msg)) {
-		bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
-			if (error) {
-				bot.sendMessage(msg.author,error);
-				console.log(error);
-			}
-			if (!error) {
-				console.log("Logs sent to " + msg.author);
-			}
-			
-		});
+			commandID(msg);
+		}
+		
+		//if message is !ConfigTest, test variables in config.json and report errors.
+		if (msg.content === "!configtest") {
+			ConfigTest.runConfigTest(bot,msg, function (error,data) {
+				Cooldown.updateTimeStamp(msg);
+				if (error) {
+					messageResponse=error;
+				}
+				if(!error) {
+					messageResponse=data;
+				}
+				console.log(messageResponse);
+				bot.sendMessage(msg.channel,messageResponse);
+			});
+		}
+		
+		//Fetches log and sends it over discord
+		if (msg.content ==="!getlog") {
+			bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
+				if (error) {
+					bot.sendMessage(msg.author,error);
+					console.log(error);
+				}
+				if (!error) {
+					console.log("Logs sent to " + msg.author);
+				}
+				
+			});
+		}
+		
+		//Restarts the bot
+		if (msg.content === "!restart") {
+			console.log(msg.author + msg.author.username + " has restarted the bot.");
+			bot.logout();
+		}
+		
+		//Shuts down the bot
+		if (msg.content === "!shutdown") {
+			bot.logout(function (error) {
+				console.log(msg.author + msg.author.username + " has shut down the bot.");
+				process.exit(1);
+			});
+		}
 	}
 	
 });
@@ -344,15 +377,15 @@ function botInitialization() {
 bot.on("disconnected", function () {
 	//alert the console
 	console.log("Disconnected!");
-	if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	
 	//Close Db since we open it on each login...
 	PingPong.closeDb();
 	
 	if (FEATURE_RECONNECT) {
 		//Wait X seconds before reconnecting
-		console.log("Attempting login in " + loginTimeDelay/1000 + " seconds...");
+		console.log("Attempting login in " + loginTimeDelay/1000 + 5000 + " seconds...");
 		setTimeout(botInitialization,loginTimeDelay);
+		if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	}
 	if (!FEATURE_RECONNECT) {
 		//If we don't want to reconnect just exit

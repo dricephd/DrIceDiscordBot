@@ -7,11 +7,8 @@
 		"roulette" : true,
 		"statusNotifier" : false,
 		"help" : true,
-		"ID" : true,
-		"configTest" : true,
 		"shitpost" : true,
 		"cooldown" : true,
-		"reconnect" : true,
-		"getlog" : true
+		"reconnect" : true
 	}
 }
