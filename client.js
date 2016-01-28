@@ -159,6 +159,8 @@ bot.on("message", function (msg) {
 	if (msg.author.id == bot.user.id) return;
 	//If it's a PM cancel out
 	if (msg.channel.isPrivate) return;
+	//If somehow the user doesn't exist skip him...
+	if (msg.author==null || msg.author==undefined) return;
 	
 	var messageResponse="";
 	var userPerms=msg.channel.server.detailsOfUser(msg.author).roles;
