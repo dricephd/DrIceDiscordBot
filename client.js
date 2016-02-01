@@ -243,9 +243,18 @@ bot.on("message", function (msg) {
 	if (msg.content === "!list" && !Cooldown.checkCooldown(msg))
 	{
 		//Limit is 2000 characters... need to check.
+		var tmp;
 		messageResponse += "**__Registered Custom Commands__**\n";
 		for (var i in customCommands) {
-			messageResponse += customCommands[i]["command"] + " - " + customCommands[i]["response"].substring(0,20) + "...\n";
+			tmp = customCommands[i]["command"] + " - " + customCommands[i]["response"].substring(0,20) + "...\n";
+			
+			if (messageResponse.length + tmp.length < 2000)
+				messageResponse += tmp;
+			
+			//If it's too long we gotta split it up
+			if (messageResponse.length + tmp.length >= 2000) {
+				
+			}
 		}
 		bot.sendMessage(msg.sender,messageResponse);
 		Cooldown.updateTimeStamp(msg);
