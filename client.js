@@ -253,7 +253,6 @@ bot.on("message", function (msg) {
 		var x=0;
 		messageResponse += "**__Registered Custom Commands__**\n";
 		var step = function(x) {
-			console.log(x);
 			if ( x <= len ) {
 				if (customCommands[x] != undefined) {
 					tmp = customCommands[x]['command'] + " - " + customCommands[x]['response'].substring(0,20) + "...\n";
