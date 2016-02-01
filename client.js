@@ -26,6 +26,8 @@ const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
 var Discord = require("discord.js");
 var Moment = require('moment');
 var fs = require('fs'); //Used for File Input Output
+var async = require('async');
+
 var PingPong = require("./lib/pingpong.js");
 var ShitPost = require("./lib/shitpost.js");
 var ConfigTest = require("./lib/configtest.js");
@@ -242,21 +244,39 @@ bot.on("message", function (msg) {
 	}
 	if (msg.content === "!list" && !Cooldown.checkCooldown(msg))
 	{
+		var len=0;
+		//Getting length is stupid so we need to find it ourselves
+		for (var i in customCommands) len=i;
+		
 		//Limit is 2000 characters... need to check.
 		var tmp;
+		var x=0;
 		messageResponse += "**__Registered Custom Commands__**\n";
-		for (var i in customCommands) {
-			tmp = customCommands[i]["command"] + " - " + customCommands[i]["response"].substring(0,20) + "...\n";
-			
-			if (messageResponse.length + tmp.length < 2000)
-				messageResponse += tmp;
-			
-			//If it's too long we gotta split it up
-			if (messageResponse.length + tmp.length >= 2000) {
-				
+		var step = function(x) {
+			console.log(x);
+			if ( x <= len ) {
+				if (customCommands[x] != undefined) {
+					tmp = customCommands[x]['command'] + " - " + customCommands[x]['response'].substring(0,20) + "...\n";
+										
+					if (messageResponse.length + tmp.length >= 2000) {
+						bot.sendMessage(msg.sender,messageResponse,function(error,msg) {
+							messageResponse = "**__Page 2__**\n";
+							messageResponse += tmp;
+							step(x+1);
+						});
+					}
+					if (messageResponse.length + tmp.length < 2000) {
+						messageResponse += tmp;
+						step(x+1);
+					}
+				} else {
+					step(x+1);
+				}
+			} else if ( x > Object.keys(customCommands).length ) {
+				bot.sendMessage(msg.sender,messageResponse);
 			}
 		}
-		bot.sendMessage(msg.sender,messageResponse);
+		step(0);
 		Cooldown.updateTimeStamp(msg);
 	}
 	
