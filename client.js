@@ -355,27 +355,24 @@ bot.on("message", function (msg) {
 });
 
 //when the bot receives user status update
-bot.on("presence", function (usr, status, gID) {
+bot.on("presence", function (usrOld, usrNew) {
 	//If not enabled don't do anything
 	if (!FEATURE_STATUSNOTIFY) return;
 	//If the user status is online
-	if (status == "online") {
-		//If they are online and status is null, this is called when quitting a game too but that's acceptable for me.
-		if (gID === undefined) {
-			//send to the User Log Channel
-			bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + Moment().format("h:mm a ") + usr.username + " is now " + status, function(error, sentMsg) {
-				if (error != null) console.log(ConfigDetails.statusLogChannel + error);
-			});
-		}
+	if (usrNew.status == "online" && usrNew.game == null) {
+		//send to the User Log Channel
+		bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status, function(error, sentMsg) {
+			if (error != null) console.log(ConfigDetails.statusLogChannel + error);
+		});
 		
-	} else if (status == "offline") {
+	} else if (usrNew.status == "offline") {
 		//Send to the User Log Channel that he's offline
-		bot.sendMessage(ConfigDetails.statusLogChannel,"❌" + Moment().format("h:mm a ") + usr.username + " is now " + status);
-	} else if (status == "idle") {
+		bot.sendMessage(ConfigDetails.statusLogChannel,"❌" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status);
+	} else if (usrNew.status == "idle") {
 		//Send to the User Log Channel that he's idle
-		bot.sendMessage(ConfigDetails.statusLogChannel,"🕓" + Moment().format("h:mm a ") + usr.username + " is now " + status);
+		bot.sendMessage(ConfigDetails.statusLogChannel,"🕓" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status);
 	} else {
-		console.Log("Status Update: Error");
+		console.log("Status Update: Error");
 	}
 });
 
