@@ -359,7 +359,7 @@ bot.on("presence", function (usrOld, usrNew) {
 	//If not enabled don't do anything
 	if (!FEATURE_STATUSNOTIFY) return;
 	//If the user status is online
-	if (usrNew.status == "online" && usrOld.game == null) {
+	if (usrNew.status == "online" && usrNew.game == null) {
 		//send to the User Log Channel
 		bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status, function(error, sentMsg) {
 			if (error != null) console.log(ConfigDetails.statusLogChannel + error);
