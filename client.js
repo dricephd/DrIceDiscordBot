@@ -377,13 +377,13 @@ bot.on("presence", function (usrOld, usrNew) {
 });
 
 //Detects when user joins any channel
-bot.on("voiceJoin", function (usr,vchannel) {
+bot.on("voiceJoin", function (vchannel,usr) {
 	bot.sendMessage(ConfigDetails.statusLogChannel, "▶ " + Moment().format("h:mm a ") + usr.username + " joined " + vchannel.name);
 	
 });
 
 //Detects when user disconnects from voice completely.
-bot.on("voiceLeave", function (usr,vchannel) {
+bot.on("voiceLeave", function (vchannel,usr) {
 	bot.sendMessage(ConfigDetails.statusLogChannel, "🔽 " + Moment().format("h:mm a ") + usr.username + " disconnected from voice.");
 	
 });

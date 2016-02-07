@@ -10,8 +10,8 @@
   },
   "main": "client.js",
   "dependencies": {
-    "async": "^1.5.2",
-    "discord.js": "^6.0.0",
+    "async": "1.5.2",
+    "discord.js": "6.0.0",
     "moment": "2.11.1",
     "node.js": "0.0.0",
     "request": "2.67.0",
