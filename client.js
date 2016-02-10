@@ -32,6 +32,7 @@ var PingPong = require("./lib/pingpong.js");
 var ShitPost = require("./lib/shitpost.js");
 var ConfigTest = require("./lib/configtest.js");
 var Cooldown = require("./lib/cooldown.js");
+var Music = require("./lib/music.js");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
