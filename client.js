@@ -146,7 +146,7 @@ commandID = function(msg) {
 //when the bot is ready
 bot.on("ready", function () {
 	//Music bot
-	Music.initialize(bot,"test");
+	Music.initialize(bot,"test","music");
 	
 	//coodlown.js object setup
 	Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
