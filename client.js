@@ -297,6 +297,7 @@ bot.on("message", function (msg) {
 		if (msg.content == "!skip") {
 			Music.skipPlayList();
 		}
+		
 	}
 	
 	//Check for custom commands here
