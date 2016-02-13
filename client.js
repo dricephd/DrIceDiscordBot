@@ -146,7 +146,7 @@ commandID = function(msg) {
 //when the bot is ready
 bot.on("ready", function () {
 	//Music bot
-	Music.initialize(bot,"test","music");
+	Music.initialize(bot,"asdf","music");
 	
 	//coodlown.js object setup
 	Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
@@ -281,6 +281,22 @@ bot.on("message", function (msg) {
 		}
 		step(0);
 		Cooldown.updateTimeStamp(msg);
+	}
+	
+	//Music bot commands
+	if (msg.channel.name === Music.getChannel("text")) {
+		if (msg.content === "!currentsong") {
+			bot.sendMessage(msg.channel, "Now Playing: " + Music.getCurrentSong());
+		}
+			
+		if (msg.content.indexOf("!queue") > -1) {
+			var song = msg.content.split(' ')[1];
+			Music.addToPlayList(song);
+		}
+		
+		if (msg.content == "!skip") {
+			Music.skipPlayList();
+		}
 	}
 	
 	//Check for custom commands here
