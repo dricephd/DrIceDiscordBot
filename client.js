@@ -304,7 +304,7 @@ bot.on("message", function (msg) {
 				
 			if (msg.content.indexOf("!queue") > -1) {
 				var song = msg.content.split(' ')[1];
-				Music.addToPlayList(song);
+				Music.addToPlayList(song,msg.author);
 			}
 			
 			if (msg.content == "!skip") {
