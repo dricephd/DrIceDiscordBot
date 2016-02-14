@@ -1,14 +1,20 @@
 {
 	"version" : "DEV-0.6.0",
-	"statusLogChannel" : "-1",
+	"statusLogChannel" : -1,
 	"cooldownTime" : "5",
 	"featureStatus": {
 		"fish" : true,
 		"roulette" : true,
-		"statusNotifier" : false,
+		"statusNotifier" : true,
 		"help" : true,
+		"ID" : true,
+		"configTest" : true,
 		"shitpost" : true,
 		"cooldown" : true,
-		"reconnect" : true
+		"music" : false
+	},
+	"musicChannels": {
+		"textChannel" : "channelnames",
+		"voiceChannel" : "gohere"
 	}
 }
