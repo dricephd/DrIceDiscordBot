@@ -18,6 +18,7 @@ const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
 const FEATURE_HELP = ConfigDetails.featureStatus.help;
 const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
 const FEATURE_GETLOG = ConfigDetails.featureStatus.getlog;
+const FEATURE_MUSIC = ConfigDetails.featureStatus.music;
 
 //Set Non-Feature Constants
 const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
@@ -68,6 +69,14 @@ commandHelp = function(msg,debugPerm) {
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
 	if (FEATURE_ROULETTE) msgResponse += "!roulette - Choose an active user in the channel at random.\n";
 	if (FEATURE_SHITPOST) msgResponse += "!shitpost - Post a shitpost from one of several subreddits.\n";
+	//Music
+	if (FEATURE_MUSIC) {
+		msgResponse += "**Music Commands:**\n";
+		msgResponse += "	* !queue - Views entire queue if there is one\n";
+		msgResponse += "	* !queue [youtube link] - adds something to the playlist\n";
+		msgResponse += "	* !skip - Skips current song, be nice to each other\n";
+		msgResponse += "	* !currentsong - Shows current song\n";
+	}
 	
 	//Show any enabled features that don't have a command
 	msgResponse += "\n**__Enabled Features__**\n";
@@ -145,8 +154,11 @@ commandID = function(msg) {
 
 //when the bot is ready
 bot.on("ready", function () {
+	
 	//Music bot
-	Music.initialize(bot,"asdf","music");
+	if (FEATURE_MUSIC) {
+		Music.initialize(bot,ConfigDetails.musicChannels.voiceChannel,ConfigDetails.musicChannels.textChannel);
+	}
 	
 	//coodlown.js object setup
 	Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
@@ -284,22 +296,23 @@ bot.on("message", function (msg) {
 	}
 	
 	//Music bot commands
-	if (msg.channel.name === Music.getChannel("text")) {
-		if (msg.content === "!currentsong") {
-			bot.sendMessage(msg.channel, "Now Playing: " + Music.getCurrentSong());
-		}
+	if (FEATURE_MUSIC) {
+		if (msg.channel.name === Music.getChannel("text")) {
+			if (msg.content === "!currentsong") {
+				bot.sendMessage(msg.channel, "Now Playing: " + Music.getCurrentSong());
+			}
+				
+			if (msg.content.indexOf("!queue") > -1) {
+				var song = msg.content.split(' ')[1];
+				Music.addToPlayList(song);
+			}
 			
-		if (msg.content.indexOf("!queue") > -1) {
-			var song = msg.content.split(' ')[1];
-			Music.addToPlayList(song);
+			if (msg.content == "!skip") {
+				Music.skipPlayList();
+			}
+			
 		}
-		
-		if (msg.content == "!skip") {
-			Music.skipPlayList();
-		}
-		
 	}
-	
 	//Check for custom commands here
 	for (var i in customCommands) {
 		if (msg.content === customCommands[i]["command"] && !Cooldown.checkCooldown(msg)) {
