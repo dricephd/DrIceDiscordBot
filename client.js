@@ -390,6 +390,7 @@ bot.on("message", function (msg) {
 
 //when the bot receives user status update
 bot.on("presence", function (usrOld, usrNew) {
+	console.log(usrNew);
 	//If not enabled don't do anything
 	if (!FEATURE_STATUSNOTIFY) return;
 	//If the user status is online
@@ -398,16 +399,13 @@ bot.on("presence", function (usrOld, usrNew) {
 		bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status, function(error, sentMsg) {
 			if (error != null) console.log(ConfigDetails.statusLogChannel + error);
 		});
-		
 	} else if (usrNew.status == "offline") {
 		//Send to the User Log Channel that he's offline
 		bot.sendMessage(ConfigDetails.statusLogChannel,"❌" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status);
 	} else if (usrNew.status == "idle") {
 		//Send to the User Log Channel that he's idle
 		bot.sendMessage(ConfigDetails.statusLogChannel,"🕓" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status);
-	} else {
-		console.log("Status Update: Error");
-	}
+	} 
 });
 
 //Detects when user joins any channel
