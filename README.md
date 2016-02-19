@@ -34,6 +34,11 @@ These are more specifically detailed in the package.json file
  - request
  - sqlite
 
+If you want to use the music portion:
+- Python that has been placed in %PATH% (Windows)
+- ffmpeg that has been placed in %PATH% (Windows)
+- [The ability to compile npm packages as outlined here] (https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#prerequisites)
+
 ###Running for the first time###
 1. Extract desired branch to a folder
 2. Run `npm install` while within the folder
