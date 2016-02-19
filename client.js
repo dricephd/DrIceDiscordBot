@@ -4,7 +4,12 @@
 	VERSION: DEV-0.5.0
 */
 
+const PROJECTNAME = "DrIceDiscordBot";
+const AUTHOR = "DrIcePhD <@82980617909698560>"
 const VERSION = "DEV-0.6.0";
+const REPO = "https://github.com/dricephd/DrIceDiscordBot";
+const LIBRARY = "discord.js";
+const API = "https://github.com/hydrabolt/discord.js/";
 
 // Load JSON Files
 var AuthDetails = require("./config/auth.json");
@@ -64,6 +69,7 @@ commandHelp = function(msg,debugPerm) {
 	//DM The commands to the caller
 	msgResponse += "**__Commands for DIDBC bot Ver. " + VERSION + "__**\n";
 	msgResponse += "!help - You're already doing it!\n";
+	msgResponse += "!info - Info about the bot";
 	
 	//User Functions
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
@@ -204,6 +210,19 @@ bot.on("message", function (msg) {
 		//Update last time we used a command
 		Cooldown.updateTimeStamp(msg);
 		commandHelp(msg,debugRole);
+	}
+	
+	if (msg.content === "!info" && !Cooldown.checkCooldown(msg)) {
+		Cooldown.updateTimeStamp(msg);
+		bot.sendMessage(msg.channel,
+			"``` " + PROJECTNAME + "\n" +
+					VERSION + "\n" +
+					AUTHOR + "\n" +
+					REPO + "\n" +
+					LIBRARY + "\n" +
+					API + "```"
+			
+			);
 	}
 	
 	//Stupid joke command
