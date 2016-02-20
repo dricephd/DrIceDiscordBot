@@ -69,7 +69,7 @@ commandHelp = function(msg,debugPerm) {
 	//DM The commands to the caller
 	msgResponse += "**__Commands for DIDBC bot Ver. " + VERSION + "__**\n";
 	msgResponse += "!help - You're already doing it!\n";
-	msgResponse += "!info - Info about the bot";
+	msgResponse += "!info - Info about the bot\n";
 	
 	//User Functions
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
