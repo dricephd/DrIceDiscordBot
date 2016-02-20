@@ -70,6 +70,7 @@ commandHelp = function(msg,debugPerm) {
 	msgResponse += "**__Commands for DIDBC bot Ver. " + VERSION + "__**\n";
 	msgResponse += "!help - You're already doing it!\n";
 	msgResponse += "!info - Info about the bot\n";
+	msgResponse += "!uptime - How long I've been logged in\n";
 	
 	//User Functions
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
@@ -225,6 +226,11 @@ bot.on("message", function (msg) {
 			);
 	}
 	
+	if (msg.content === "!uptime" && !Cooldown.checkCooldown(msg)) {
+		Cooldown.updateTimeStamp(msg);
+		bot.sendMessage(msg.channel,Moment().milliseconds(bot.uptime).toNow());
+	}
+	
 	//Stupid joke command
 	if (msg.content === "!fish" && FEATURE_FISH && !Cooldown.checkCooldown(msg)) {
 		Cooldown.updateTimeStamp(msg);
@@ -294,7 +300,7 @@ bot.on("message", function (msg) {
 										
 					if (messageResponse.length + tmp.length >= 2000) {
 						bot.sendMessage(msg.sender,messageResponse,function(error,msg) {
-							messageResponse = "**__Page 2__**\n";
+							messageResponse = "**__Next Page__**\n";
 							messageResponse += tmp;
 							step(x+1);
 						});
