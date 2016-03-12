@@ -16,5 +16,9 @@
 	"musicChannels": {
 		"textChannel" : "channelnames",
 		"voiceChannel" : "gohere"
-	}
+	},
+	"shitpostSources": [
+		"https://www.reddit.com/r/me_irl/.json",
+		"https://www.reddit.com/r/pics/.json"		
+	]
 }
