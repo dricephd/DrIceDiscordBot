@@ -455,6 +455,7 @@ function botInitialization() {
 	
 	//Initialize DB
 	PingPong.initializeDB();
+	ShitPost.Setup(ConfigDetails.shitpostSources);
 	
 	//Let the bot login.
 	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
