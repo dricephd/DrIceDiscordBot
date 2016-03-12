@@ -415,7 +415,6 @@ bot.on("message", function (msg) {
 
 //when the bot receives user status update
 bot.on("presence", function (usrOld, usrNew) {
-	console.log(usrNew);
 	//If not enabled don't do anything
 	if (!FEATURE_STATUSNOTIFY) return;
 	//If the user status is online
