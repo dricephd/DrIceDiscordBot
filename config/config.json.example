@@ -11,7 +11,8 @@
 		"configTest" : true,
 		"shitpost" : true,
 		"cooldown" : true,
-		"music" : false
+		"music" : false,
+		"cleverbot" : true
 	},
 	"musicChannels": {
 		"textChannel" : "channelnames",

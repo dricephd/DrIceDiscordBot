@@ -24,6 +24,7 @@ const FEATURE_HELP = ConfigDetails.featureStatus.help;
 const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
 const FEATURE_GETLOG = ConfigDetails.featureStatus.getlog;
 const FEATURE_MUSIC = ConfigDetails.featureStatus.music;
+const FEATURE_CLEVERBOT = ConfigDetails.featureStatus.cleverbot;
 
 //Set Non-Feature Constants
 const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
@@ -39,6 +40,7 @@ var ShitPost = require("./lib/shitpost.js");
 var ConfigTest = require("./lib/configtest.js");
 var Cooldown = require("./lib/cooldown.js");
 var Music = require("./lib/music.js");
+var CleverBot = require("./lib/cleverbot.js");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
@@ -318,6 +320,23 @@ bot.on("message", function (msg) {
 		}
 		step(0);
 		Cooldown.updateTimeStamp(msg);
+	}
+	
+	//Cleverbot @Mentions to the bot
+	if (FEATURE_CLEVERBOT) {
+		if (msg.isMentioned(bot.user)) {
+			var input = msg.content.substring(msg.content.indexOf(' ')+1);
+			
+			bot.startTyping(msg.channel,function callback(error) {
+				if (error) console.log(error)
+			});
+			CleverBot.sendMessage({message:input},function callback(error, response) {
+				bot.sendMessage(msg.channel,response);
+				bot.stopTyping(msg.channel, function callback(error) {
+					if (error) console.log(error)
+				});
+			});
+		}
 	}
 	
 	//Music bot commands
