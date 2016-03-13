@@ -248,7 +248,13 @@ bot.on("message", function (msg) {
 	//Shitposting from reddit's JSON fetch
 	if (msg.content === "!shitpost" && FEATURE_SHITPOST && !Cooldown.checkCooldown(msg))
 	{
+		bot.startTyping(msg.channel,function callback(error) {
+			if (error) console.log(error)
+		});
 		ShitPost.fetchShitPost(function (error,data) {
+			bot.stopTyping(msg.channel,function callback(error) {
+				if (error) console.log(error)
+			});
 			if (error == null) {
 				Cooldown.updateTimeStamp(msg);
 				messageResponse=data;
