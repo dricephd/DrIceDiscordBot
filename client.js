@@ -78,6 +78,7 @@ commandHelp = function(msg,debugPerm) {
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
 	if (FEATURE_ROULETTE) msgResponse += "!roulette - Choose an active user in the channel at random.\n";
 	if (FEATURE_SHITPOST) msgResponse += "!shitpost - Post a shitpost from one of several subreddits.\n";
+	if (FEATURE_CLEVERBOT) msgResponse += "@<BotName> - Bot will take input and respond with Cleverbot.\n";
 	//Music
 	if (FEATURE_MUSIC) {
 		msgResponse += "**Music Commands:**\n";
