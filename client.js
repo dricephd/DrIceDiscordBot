@@ -4,7 +4,12 @@
 	VERSION: DEV-0.5.0
 */
 
-const VERSION = "0.5.0";
+const PROJECTNAME = "DrIceDiscordBot";
+const AUTHOR = "DrIcePhD <@82980617909698560>"
+const VERSION = "DEV-0.6.0";
+const REPO = "https://github.com/dricephd/DrIceDiscordBot";
+const LIBRARY = "discord.js";
+const API = "https://github.com/hydrabolt/discord.js/";
 
 // Load JSON Files
 var AuthDetails = require("./config/auth.json");
@@ -16,10 +21,10 @@ const FEATURE_ROULETTE = ConfigDetails.featureStatus.roulette;
 const FEATURE_SHITPOST = ConfigDetails.featureStatus.shitpost;
 const FEATURE_STATUSNOTIFY = ConfigDetails.featureStatus.statusNotifier;
 const FEATURE_HELP = ConfigDetails.featureStatus.help;
-const FEATURE_ID = ConfigDetails.featureStatus.ID;
-const FEATURE_CONFIGTEST = ConfigDetails.featureStatus.configTest;
 const FEATURE_RECONNECT = ConfigDetails.featureStatus.reconnect;
 const FEATURE_GETLOG = ConfigDetails.featureStatus.getlog;
+const FEATURE_MUSIC = ConfigDetails.featureStatus.music;
+const FEATURE_CLEVERBOT = ConfigDetails.featureStatus.cleverbot;
 
 //Set Non-Feature Constants
 const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
@@ -28,10 +33,14 @@ const CONFIG_COOLDOWN = ConfigDetails.cooldownTime;
 var Discord = require("discord.js");
 var Moment = require('moment');
 var fs = require('fs'); //Used for File Input Output
+var async = require('async');
+
 var PingPong = require("./lib/pingpong.js");
-if (FEATURE_SHITPOST) var ShitPost = require("./lib/shitpost.js");
-if (FEATURE_CONFIGTEST) var ConfigTest = require("./lib/configtest.js");
+var ShitPost = require("./lib/shitpost.js");
+var ConfigTest = require("./lib/configtest.js");
 var Cooldown = require("./lib/cooldown.js");
+var Music = require("./lib/music.js");
+var CleverBot = require("./lib/cleverbot.js");
 
 //Spawn globally required classes
 var bot = new Discord.Client();
@@ -56,17 +65,28 @@ console.log = function(data) {
 };
 
 //Send enabled help commands to requester
-commandHelp = function(msg) {
+commandHelp = function(msg,debugPerm) {
 	//Buffer all of our response then send it so we don't get weird ordering
 	var msgResponse="";
 	//DM The commands to the caller
 	msgResponse += "**__Commands for DIDBC bot Ver. " + VERSION + "__**\n";
 	msgResponse += "!help - You're already doing it!\n";
+	msgResponse += "!info - Info about the bot\n";
+	msgResponse += "!uptime - How long I've been logged in\n";
 	
 	//User Functions
 	if (FEATURE_FISH) msgResponse += "!fish - Slaps requester about with a random fish!\n";
 	if (FEATURE_ROULETTE) msgResponse += "!roulette - Choose an active user in the channel at random.\n";
 	if (FEATURE_SHITPOST) msgResponse += "!shitpost - Post a shitpost from one of several subreddits.\n";
+	if (FEATURE_CLEVERBOT) msgResponse += "@<BotName> - Bot will take input and respond with Cleverbot.\n";
+	//Music
+	if (FEATURE_MUSIC) {
+		msgResponse += "**Music Commands:**\n";
+		msgResponse += "	* !queue - Views entire queue if there is one\n";
+		msgResponse += "	* !queue [youtube link] - adds something to the playlist\n";
+		msgResponse += "	* !skip - Skips current song, be nice to each other\n";
+		msgResponse += "	* !currentsong - Shows current song\n";
+	}
 	
 	//Show any enabled features that don't have a command
 	msgResponse += "\n**__Enabled Features__**\n";
@@ -74,20 +94,22 @@ commandHelp = function(msg) {
 	msgResponse += "Cooldown - User can't use command more than once every " + CONFIG_COOLDOWN + " seconds.\n";
 	if (FEATURE_RECONNECT) msgResponse += "Reconnect - Bot will attempt to reconnect if taken offline unexpectedly.\n";
 	
-	//Functions for Debugging
-	msgResponse+= "\n**__Debug Commands__**\n";
-	if (FEATURE_ID) msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
-	if (FEATURE_CONFIGTEST) msgResponse += "!configtest - Test the settings in config.json\n";
-	if (FEATURE_GETLOG) msgResponse += "!getlog - Bot will send you the log\n";
-	
+	if (debugPerm)
+	{
+		//Functions for Debugging
+		msgResponse+= "\n**__Debug Commands__**\n";
+		msgResponse += "!ID - PM the Channel and User ID to caller and print them both in the log.\n";
+		msgResponse += "!configtest - Test the settings in config.json\n";
+		msgResponse += "!getlog - Bot will send you the log\n";
+		msgResponse += "!shutdown - Shuts down bot\n";
+		msgResponse += "!restart - Restarts the bot\n";
+	}
 	//Custom Commands
 	msgResponse += "\n**__Custom User Commands__**\n";
 	msgResponse += "!add [command] [response] - adds a custom command\n";
-	msgResponse += "!delete [command] [response] - delete a custom command\n";
-	
-	for (var i in customCommands) {
-		msgResponse += customCommands[i]["command"] + "\n";
-	}
+	msgResponse += "	* Response Variables: `%randomnum% %randomuser% %time% %@name% %name%`\n";
+	msgResponse += "!delete [command] - delete a custom command\n";
+	msgResponse += "!list - list all custom commands\n";
 	
 	bot.sendMessage(msg.sender, msgResponse);
 };
@@ -142,6 +164,12 @@ commandID = function(msg) {
 
 //when the bot is ready
 bot.on("ready", function () {
+	
+	//Music bot
+	if (FEATURE_MUSIC) {
+		Music.initialize(bot,ConfigDetails.musicChannels.voiceChannel,ConfigDetails.musicChannels.textChannel);
+	}
+	
 	//coodlown.js object setup
 	Cooldown.Setup(bot,CONFIG_COOLDOWN, bot.users);
 	
@@ -155,7 +183,23 @@ bot.on("ready", function () {
 
 //when the bot receives a message
 bot.on("message", function (msg) {
+	//If it detects its own message skip
+	if (msg.author.id == bot.user.id) return;
+	//If it's a PM cancel out
+	if (msg.channel.isPrivate) return;
+	//If somehow the user doesn't exist skip him...
+	if (msg.author==null || msg.author==undefined) return;
+	
 	var messageResponse="";
+	var userPerms=msg.channel.server.detailsOfUser(msg.author).roles;
+	
+	//First check if they have the manageRoles role to know if they can debug
+	var debugRole=false;
+	
+	for (var perms in userPerms) {
+		if(userPerms[perms].hasPermission("manageRoles")) debugRole=true;
+	}
+	
 	/* Commands for primary use
 		* !help
 		* !fish
@@ -164,14 +208,30 @@ bot.on("message", function (msg) {
 		* !add
 		* !remove
 	*/
-	//If it detects its own message skip
-	if (msg.author.id == bot.user.id) return;
 	
 	//Sends PM to user of all relevant commands
 	if (msg.content === "!help" && FEATURE_HELP && !Cooldown.checkCooldown(msg)) {
 		//Update last time we used a command
 		Cooldown.updateTimeStamp(msg);
-		commandHelp(msg);
+		commandHelp(msg,debugRole);
+	}
+	
+	if (msg.content === "!info" && !Cooldown.checkCooldown(msg)) {
+		Cooldown.updateTimeStamp(msg);
+		bot.sendMessage(msg.channel,
+			"``` " + PROJECTNAME + "\n" +
+					VERSION + "\n" +
+					AUTHOR + "\n" +
+					REPO + "\n" +
+					LIBRARY + "\n" +
+					API + "```"
+			
+			);
+	}
+	
+	if (msg.content === "!uptime" && !Cooldown.checkCooldown(msg)) {
+		Cooldown.updateTimeStamp(msg);
+		bot.sendMessage(msg.channel,Moment().milliseconds(bot.uptime).toNow());
 	}
 	
 	//Stupid joke command
@@ -189,7 +249,13 @@ bot.on("message", function (msg) {
 	//Shitposting from reddit's JSON fetch
 	if (msg.content === "!shitpost" && FEATURE_SHITPOST && !Cooldown.checkCooldown(msg))
 	{
+		bot.startTyping(msg.channel,function callback(error) {
+			if (error) console.log(error)
+		});
 		ShitPost.fetchShitPost(function (error,data) {
+			bot.stopTyping(msg.channel,function callback(error) {
+				if (error) console.log(error)
+			});
 			if (error == null) {
 				Cooldown.updateTimeStamp(msg);
 				messageResponse=data;
@@ -207,7 +273,7 @@ bot.on("message", function (msg) {
 		response = response.substring(response.indexOf(' ')+1);
 		
 		PingPong.insertCommand(command, response, function (error,data) {
-			if (!error) console.log(data);
+			if (!error) console.log(msg.author + msg.author.username + " " + data);
 			if (error) console.log(error);
 			customCommands = PingPong.getCommands();
 			bot.sendMessage(msg.channel,data);
@@ -218,7 +284,7 @@ bot.on("message", function (msg) {
 	{
 		var command = msg.content.split(' ')[1];
 		PingPong.deleteCommand(command, function (error,data) {
-			if (!error) console.log(data);
+			if (!error) console.log(msg.author + msg.author.username + " " + data);
 			if (error) console.log(error);
 			
 			customCommands = PingPong.getCommands();
@@ -226,11 +292,89 @@ bot.on("message", function (msg) {
 			Cooldown.updateTimeStamp(msg);
 		});
 	}
+	if (msg.content === "!list" && !Cooldown.checkCooldown(msg))
+	{
+		var len=0;
+		//Getting length is stupid so we need to find it ourselves
+		for (var i in customCommands) len=i;
+		
+		//Limit is 2000 characters... need to check.
+		var tmp;
+		var x=0;
+		messageResponse += "**__Registered Custom Commands__**\n";
+		var step = function(x) {
+			if ( x <= len ) {
+				if (customCommands[x] != undefined) {
+					tmp = customCommands[x]['command'] + " - " + customCommands[x]['response'].substring(0,20) + "...\n";
+										
+					if (messageResponse.length + tmp.length >= 2000) {
+						bot.sendMessage(msg.sender,messageResponse,function(error,msg) {
+							messageResponse = "**__Next Page__**\n";
+							messageResponse += tmp;
+							step(x+1);
+						});
+					}
+					if (messageResponse.length + tmp.length < 2000) {
+						messageResponse += tmp;
+						step(x+1);
+					}
+				} else {
+					step(x+1);
+				}
+			} else if ( x > Object.keys(customCommands).length ) {
+				bot.sendMessage(msg.sender,messageResponse);
+			}
+		}
+		step(0);
+		Cooldown.updateTimeStamp(msg);
+	}
 	
+	//Cleverbot @Mentions to the bot
+	if (FEATURE_CLEVERBOT) {
+		if (msg.isMentioned(bot.user)) {
+			var input = msg.content.substring(msg.content.indexOf(' ')+1);
+			
+			bot.startTyping(msg.channel,function callback(error) {
+				if (error) console.log(error)
+			});
+			CleverBot.sendMessage({message:input},function callback(error, response) {
+				bot.sendMessage(msg.channel,response);
+				bot.stopTyping(msg.channel, function callback(error) {
+					if (error) console.log(error)
+				});
+			});
+		}
+	}
+	
+	//Music bot commands
+	if (FEATURE_MUSIC) {
+		if (msg.channel.name === Music.getChannel("text")) {
+			if (msg.content === "!currentsong") {
+				bot.sendMessage(msg.channel, "Now Playing: " + Music.getCurrentSong());
+			}
+				
+			if (msg.content.indexOf("!queue") > -1) {
+				var song = msg.content.split(' ')[1];
+				Music.addToPlayList(song,msg.author);
+			}
+			
+			if (msg.content == "!skip") {
+				Music.skipPlayList();
+			}
+			
+		}
+	}
 	//Check for custom commands here
 	for (var i in customCommands) {
 		if (msg.content === customCommands[i]["command"] && !Cooldown.checkCooldown(msg)) {
-			bot.sendMessage(msg.channel,customCommands[i]["response"]);
+			var prepResponse = customCommands[i]["response"];
+			prepResponse = prepResponse.replace(/%name%/gi,msg.author.username);
+			prepResponse = prepResponse.replace(/%@name%/gi,msg.author);
+			prepResponse = prepResponse.replace(/%time%/gi, Moment());
+			prepResponse = prepResponse.replace(/%randomuser%/gi, bot.users[Math.floor(Math.random()*bot.users.length)].username);
+			prepResponse = prepResponse.replace(/%randomnum%/gi, Math.floor(Math.random()*100));
+			
+			bot.sendMessage(msg.channel,prepResponse);
 			Cooldown.updateTimeStamp(msg);
 		}
 	}
@@ -239,66 +383,91 @@ bot.on("message", function (msg) {
 		* !ID
 		* !ConfigTest
 	*/
-		
-	//if message is "!ID"
-	if (msg.content === "!ID" && FEATURE_ID && !Cooldown.checkCooldown(msg)) {
-		Cooldown.updateTimeStamp(msg);
-		commandID(msg);
-	}
 	
-	//if message is !ConfigTest, test variables in config.json and report errors.
-	if (msg.content === "!configtest" && FEATURE_CONFIGTEST && !Cooldown.checkCooldown(msg)) {
-		ConfigTest.runConfigTest(bot,msg, function (error,data) {
+	//We only want people with REALLY good server access using with these commands.
+	if (debugRole) {
+	
+		//if message is "!ID"
+		if (msg.content === "!ID") {
 			Cooldown.updateTimeStamp(msg);
-			if (error) {
-				messageResponse=error;
-			}
-			if(!error) {
-				messageResponse=data;
-			}
-			console.log(messageResponse);
-			bot.sendMessage(msg.channel,messageResponse);
-		});
-	}
-	
-	if (msg.content ==="!getlog" && FEATURE_GETLOG && !Cooldown.checkCooldown(msg)) {
-		bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
-			if (error) {
-				bot.sendMessage(msg.author,error);
-				console.log(error);
-			}
-			if (!error) {
-				console.log("Logs sent to " + msg.author);
-			}
-			
-		});
+			commandID(msg);
+		}
+		
+		//if message is !ConfigTest, test variables in config.json and report errors.
+		if (msg.content === "!configtest") {
+			ConfigTest.runConfigTest(bot,msg, function (error,data) {
+				Cooldown.updateTimeStamp(msg);
+				if (error) {
+					messageResponse=error;
+				}
+				if(!error) {
+					messageResponse=data;
+				}
+				console.log(messageResponse);
+				bot.sendMessage(msg.channel,messageResponse);
+			});
+		}
+		
+		//Fetches log and sends it over discord
+		if (msg.content ==="!getlog") {
+			bot.sendFile(msg.author,log_filename,"console.log",function (error,message) {
+				if (error) {
+					bot.sendMessage(msg.author,error);
+					console.log(error);
+				}
+				if (!error) {
+					console.log("Logs sent to " + msg.author);
+				}
+				
+			});
+		}
+		
+		//Restarts the bot
+		if (msg.content === "!restart") {
+			console.log(msg.author + msg.author.username + " has restarted the bot.");
+			bot.logout();
+		}
+		
+		//Shuts down the bot
+		if (msg.content === "!shutdown") {
+			bot.logout(function (error) {
+				console.log(msg.author + msg.author.username + " has shut down the bot.");
+				process.exit(1);
+			});
+		}
 	}
 	
 });
 
 //when the bot receives user status update
-bot.on("presence", function (usr, status, gID) {
+bot.on("presence", function (usrOld, usrNew) {
 	//If not enabled don't do anything
 	if (!FEATURE_STATUSNOTIFY) return;
 	//If the user status is online
-	if (status == "online") {
-		//If they are online and status is null, this is called when quitting a game too but that's acceptable for me.
-		if (gID === undefined) {
-			//send to the User Log Channel
-			bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + Moment().format("h:mm a ") + usr.username + " is now " + status, function(error, sentMsg) {
-				if (error != null) console.log(ConfigDetails.statusLogChannel + error);
-			});
-		}
-		
-	} else if (status == "offline") {
+	if (usrNew.status == "online" && usrNew.game == null) {
+		//send to the User Log Channel
+		bot.sendMessage(ConfigDetails.statusLogChannel, "✅" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status, function(error, sentMsg) {
+			if (error != null) console.log(ConfigDetails.statusLogChannel + error);
+		});
+	} else if (usrNew.status == "offline") {
 		//Send to the User Log Channel that he's offline
-		bot.sendMessage(ConfigDetails.statusLogChannel,"❌" + Moment().format("h:mm a ") + usr.username + " is now " + status);
-	} else if (status == "idle") {
+		bot.sendMessage(ConfigDetails.statusLogChannel,"❌" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status);
+	} else if (usrNew.status == "idle") {
 		//Send to the User Log Channel that he's idle
-		bot.sendMessage(ConfigDetails.statusLogChannel,"🕓" + Moment().format("h:mm a ") + usr.username + " is now " + status);
-	} else {
-		console.Log("Status Update: Error");
-	}
+		bot.sendMessage(ConfigDetails.statusLogChannel,"🕓" + Moment().format("h:mm a ") + usrNew.username + " is now " + usrNew.status);
+	} 
+});
+
+//Detects when user joins any channel
+bot.on("voiceJoin", function (vchannel,usr) {
+	bot.sendMessage(ConfigDetails.statusLogChannel, "▶ " + Moment().format("h:mm a ") + usr.username + " joined " + vchannel.name);
+	
+});
+
+//Detects when user disconnects from voice completely.
+bot.on("voiceLeave", function (vchannel,usr) {
+	bot.sendMessage(ConfigDetails.statusLogChannel, "🔽 " + Moment().format("h:mm a ") + usr.username + " disconnected from voice.");
+	
 });
 
 //Setup called when bot first created.
@@ -311,6 +480,7 @@ function botInitialization() {
 	
 	//Initialize DB
 	PingPong.initializeDB();
+	ShitPost.Setup(ConfigDetails.shitpostSources);
 	
 	//Let the bot login.
 	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
@@ -325,15 +495,15 @@ function botInitialization() {
 bot.on("disconnected", function () {
 	//alert the console
 	console.log("Disconnected!");
-	if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	
 	//Close Db since we open it on each login...
 	PingPong.closeDb();
 	
 	if (FEATURE_RECONNECT) {
 		//Wait X seconds before reconnecting
-		console.log("Attempting login in " + loginTimeDelay/1000 + " seconds...");
+		console.log("Attempting login in " + loginTimeDelay/1000 + 5000 + " seconds...");
 		setTimeout(botInitialization,loginTimeDelay);
+		if (loginTimeDelay < 120000) loginTimeDelay+=20000; //Up to 2 minute delay so we don't get ourselves banned
 	}
 	if (!FEATURE_RECONNECT) {
 		//If we don't want to reconnect just exit

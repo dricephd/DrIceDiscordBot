@@ -1,17 +1,25 @@
 {
-	"version" : "0.5.0",
-	"statusLogChannel" : "-1",
+	"version" : "DEV-0.6.0",
+	"statusLogChannel" : -1,
 	"cooldownTime" : "5",
 	"featureStatus": {
 		"fish" : true,
 		"roulette" : true,
-		"statusNotifier" : false,
+		"statusNotifier" : true,
 		"help" : true,
 		"ID" : true,
 		"configTest" : true,
 		"shitpost" : true,
 		"cooldown" : true,
-		"reconnect" : true,
-		"getlog" : true
-	}
+		"music" : false,
+		"cleverbot" : true
+	},
+	"musicChannels": {
+		"textChannel" : "channelnames",
+		"voiceChannel" : "gohere"
+	},
+	"shitpostSources": [
+		"https://www.reddit.com/r/me_irl/.json",
+		"https://www.reddit.com/r/pics/.json"		
+	]
 }

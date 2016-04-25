@@ -35,3 +35,6 @@ logs
 
 # Ignore databases
 *.sqlite3
+
+# Ignore music cache
+music_cache
