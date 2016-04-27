@@ -6,7 +6,7 @@
 
 const PROJECTNAME = "DrIceDiscordBot";
 const AUTHOR = "DrIcePhD <@82980617909698560>"
-const VERSION = "DEV-0.6.0";
+const VERSION = "0.6.1";
 const REPO = "https://github.com/dricephd/DrIceDiscordBot";
 const LIBRARY = "discord.js";
 const API = "https://github.com/hydrabolt/discord.js/";
@@ -483,7 +483,7 @@ function botInitialization() {
 	ShitPost.Setup(ConfigDetails.shitpostSources);
 	
 	//Let the bot login.
-	bot.login(AuthDetails.email, AuthDetails.password, function(error, token) {
+	bot.loginWithToken(AuthDetails.token, function(error, token) {
 		//this callback seems to be VERY unreliable, DONT USE
 		if (error) {
 			console.log("Login Errors: " + error);
