@@ -1,9 +1,12 @@
 #DrIceDiscordBot#
+
 Bot utilizing [Discord.js](https://github.com/hydrabolt/discord.js) as it's primary backbone.
 
 ![Platforms](https://img.shields.io/badge/OS%20Tested-Win%2010%2C%20WinServer%202012%20R2-brightgreen.svg) [![Build Status](https://travis-ci.org/dricephd/DrIceDiscordBot.svg?branch=development)](https://travis-ci.org/dricephd/DrIceDiscordBot) [![PT](https://img.shields.io/badge/Planning%20Tool-PivotalTracker-lightgrey.svg)](https://www.pivotaltracker.com/n/projects/1505644)
 ##Current Features in DEV-0.6.0##
+
 DIDBC is a PingPong bot that responds to chat commands.
+
 #### Fun
 - !fish command to slap yourself about with one of 1,068 species of fish
 - !roulette to select a user at random that is online
